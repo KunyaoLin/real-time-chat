@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { io } from "socket.io-client";
 import "@fontsource/roboto/400.css";
-// import { Typography } from "@mui/material";
+// const socket = io(`http://localhost:${process.env.PORT}`);
+const socket = io("http://localhost:3001", { transports: ["websocket"] });
+
 function BaseRoom() {
   const [inputMessage, setInputMessage] = useState("");
   const [showMessage, setshowMessage] = useState([]);
@@ -10,12 +13,38 @@ function BaseRoom() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (inputMessage.trim() !== "") {
+      socket.emit("message", inputMessage);
+
       setshowMessage((premessage) => [...premessage, inputMessage]);
-      //   console.log(setshowMessage);
 
       setInputMessage("");
     }
   };
+  const handleReset = () => {
+    setshowMessage([]);
+  };
+  useEffect(() => {
+    socket.on("connect", () => {
+      console.log("Connected to server with ID", socket.id);
+    });
+    socket.on("message", (msg) => {
+      setshowMessage((premessage) => [...premessage, msg]);
+    });
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  // useEffect(() => {
+  //   async function fetchData() {
+  //     try {
+  //       const response = await fetch(`http://localhost:${process.env.PORT}`);
+  //       const data = await response.json();
+  //       setshowMessage((premessage) => [...premessage, data.message]);
+  //     } catch (err) {}
+  //   }
+  //   fetchData();
+  // }, []);
 
   return (
     <>
@@ -26,13 +55,13 @@ function BaseRoom() {
         <div className="p-2 m-2 h-20 w-44">
           <p>Public Message</p>
         </div>
-        <div className="flex flex-col border w-full h-full items-center mt-2">
+        <div className="flex flex-col border w-full h-full items-center mt-2 overflow-y-auto">
           {showMessage?.map((message, index) => {
-            <p>
-              Index:
-              {index}
-              {message}
-            </p>;
+            return (
+              <p key={index}>
+                message-{index}:{message}
+              </p>
+            );
           })}
         </div>
       </div>
@@ -50,6 +79,13 @@ function BaseRoom() {
             className="py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600"
           >
             Submit
+          </button>
+          <button
+            type="button"
+            onClick={handleReset}
+            className="py-1 mt-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          >
+            Clear
           </button>
         </form>
       </div>
