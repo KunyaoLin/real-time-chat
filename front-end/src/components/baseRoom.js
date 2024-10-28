@@ -12,10 +12,12 @@ function BaseRoom() {
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (inputMessage.trim() !== "") {
-      socket.emit("message", inputMessage);
 
-      setshowMessage((premessage) => [...premessage, inputMessage]);
+    if (inputMessage.trim() !== "") {
+      const message = { text: inputMessage, senderId: socket.id };
+      socket.emit("message", message);
+
+      setshowMessage((premessage) => [...premessage, message]);
 
       setInputMessage("");
     }
@@ -27,11 +29,13 @@ function BaseRoom() {
     socket.on("connect", () => {
       console.log("Connected to server with ID", socket.id);
     });
-    socket.on("message", (msg) => {
-      setshowMessage((premessage) => [...premessage, msg]);
-    });
+    const messageListener = (msg) => {
+      if (msg.senderId !== socket.id)
+        setshowMessage((premessage) => [...premessage, msg]);
+    };
+    socket.on("message", messageListener);
     return () => {
-      socket.disconnect();
+      socket.off("message", messageListener);
     };
   }, []);
 
@@ -59,7 +63,7 @@ function BaseRoom() {
           {showMessage?.map((message, index) => {
             return (
               <p key={index}>
-                message-{index}:{message}
+                message-{index}:{message.text}
               </p>
             );
           })}

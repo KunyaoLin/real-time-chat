@@ -18,7 +18,7 @@ const io = new Server(server, {
     methods: ["GET", "POST"],
   },
 });
-
+app.set("io", io);
 app.use(express.json());
 app.use(express.static("public"));
 
