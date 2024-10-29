@@ -1,20 +1,21 @@
 //hello world
-const privateRoomRoute = require("./routes/privateRoomRouters");
-const publicRoomRoute = require("./routes/publicRoomRouters");
+const privateRoomRoute = require("./routes/privateChatRouters");
+const userRoute = require("./routes/userRouters");
 const dotenv = require("dotenv");
 const express = require("express");
 const { Server } = require("socket.io");
 const cors = require("cors");
 const app = express();
 const http = require("http");
+const chatRoute = require("./routes/chatRouters");
 dotenv.config({ path: "./config.env" });
-app.use(cors({ origin: "http://localhost:3000" }));
+app.use(cors({ origin: `${process.env.FRONT_END_URL}` }));
 const server = http.createServer(app);
 
-const port = process.env.PORT || 3001; //`http://localhost:${port}`,
+const port = process.env.PORT || 3001;
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: `${process.env.FRONT_END_URL}`,
     methods: ["GET", "POST"],
   },
 });
@@ -34,8 +35,9 @@ io.on("connection", (socket) => {
   });
 });
 
-app.use("/", publicRoomRoute);
-app.use("/api/chat", privateRoomRoute);
+app.use("/", chatRoute);
+// app.use("/api/chat", privateRoomRoute);
+// app.use("/api/user", userRoute);
 
 server.listen(port, () => {
   console.log(`server is running on port ${port}`);
