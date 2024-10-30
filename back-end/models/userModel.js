@@ -2,7 +2,6 @@ const moongoose = require("mongoose");
 const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const validator = require("validator");
-const { reset } = require("nodemon");
 //bcrypt => password, crypto=>token
 
 const userSchema = new moongoose.Schema({
@@ -13,7 +12,7 @@ const userSchema = new moongoose.Schema({
   email: {
     type: String,
     required: [true, "email is required"],
-    validate: [validator.isEmail, ""],
+    validate: [validator.isEmail, "please provide a valid email"],
     unique: true,
   },
   avator: {
@@ -21,7 +20,7 @@ const userSchema = new moongoose.Schema({
   },
   role: {
     type: String,
-    enum: ["user", "admin"],
+    enum: ["regular", "VIP"],
     default: "user",
   },
   password: {

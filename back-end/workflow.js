@@ -32,3 +32,44 @@
 // WebSocket 连接：在用户上线时，前端连接到服务器的 WebSocket。
 // 推送未读消息：服务器检测到用户上线后，将所有未读消息通过 WebSocket 推送到前端。
 // 标记已读：前端接收到消息后，调用 PUT /messages/:messageId/markAsRead API，将 readStatus 更新为 true。
+
+const mongoose = require("mongoose");
+
+const roomSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: [true, "A room must have a name"],
+  },
+  type: {
+    type: String,
+    enum: ["public", "private"], // 房间类型，表示公共或私人
+    default: "public",
+  },
+  accessLevel: {
+    type: String,
+    enum: ["regular", "vip"], // 房间权限，区分普通和VIP
+    default: "regular",
+  },
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User", // 房间创建者，引用 User 模型
+    required: true,
+  },
+  members: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User", // 成员列表，引用 User 模型
+    },
+  ],
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  description: {
+    type: String,
+    maxlength: 200, // 房间描述，增加房间信息
+  },
+});
+
+const Room = mongoose.model("Room", roomSchema);
+module.exports = Room;
