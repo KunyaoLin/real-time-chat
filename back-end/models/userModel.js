@@ -13,7 +13,7 @@ const userSchema = new moongoose.Schema({
   email: {
     type: String,
     required: [true, "email is required"],
-    validate: [validator.isEmail, ""],
+    validate: [validator.isEmail, "please provide a valid email"],
     unique: true,
   },
   avator: {
