@@ -9,7 +9,8 @@ const app = express();
 const http = require("http");
 const chatRoute = require("./routes/chatRouters");
 dotenv.config({ path: "./config.env" });
-app.use(cors({ origin: `${process.env.FRONT_END_URL}` }));
+app.use(cors());
+// app.use(cors({ origin: `${process.env.FRONT_END_URL}` }));
 const server = http.createServer(app);
 
 const port = process.env.PORT || 3001;
@@ -36,6 +37,7 @@ io.on("connection", (socket) => {
 });
 
 app.use("/", chatRoute);
+app.use("/login", userRoute);
 // app.use("/api/chat", privateRoomRoute);
 // app.use("/api/user", userRoute);
 

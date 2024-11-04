@@ -2,7 +2,15 @@
 module.exports = {
   content: ["./src/**/*.{html,js}"],
   theme: {
-    extend: {},
+    extend: {
+      spacing: {
+        "signup-w": "28rem",
+        "signup-h": "35rem",
+      },
+      fontFamily: {
+        roboto: ["Roboto", "sans-serif"],
+      },
+    },
   },
   plugins: [],
 };

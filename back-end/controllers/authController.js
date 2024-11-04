@@ -46,10 +46,16 @@ exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
   if (!email && !password)
     return next(appError("Please provide email and password", 400)); //insure got the user info from req
-  const user = await User.findOne({ email }).select("+password");
-  if (!user || (await user.correctPassword(password, user.password)))
-    return next(appError("Incorrect Email and password", 401));
-  createSendToken(user, 200, req, res);
+
+  res.status(200).json({
+    status: "success",
+    message: "welcome to real-chat room",
+  });
+  //还没创建 user model
+  // const user = await User.findOne({ email }).select("+password");
+  // if (!user || (await user.correctPassword(password, user.password)))
+  //   return next(appError("Incorrect Email and password", 401));
+  // createSendToken(user, 200, req, res);
 }); //compare the candidatePassword with database'password
 
 //logout
