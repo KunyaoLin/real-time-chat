@@ -8,7 +8,21 @@ const cors = require("cors");
 const app = express();
 const http = require("http");
 const chatRoute = require("./routes/chatRouters");
+const mongoose = require("mongoose");
 dotenv.config({ path: "./config.env" });
+const DB_URL = process.env.DATABASE_URL.replace(
+  "<db_password>",
+  process.env.DATABASE_PASSWORD
+);
+console.log(DB_URL);
+mongoose
+  .connect(DB_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then((el) => {
+    console.log("database connected successfully");
+  });
 app.use(cors());
 // app.use(cors({ origin: `${process.env.FRONT_END_URL}` }));
 const server = http.createServer(app);
@@ -36,9 +50,11 @@ io.on("connection", (socket) => {
   });
 });
 
-app.use("/", chatRoute);
-app.use("/login", userRoute);
-// app.use("/api/chat", privateRoomRoute);
+// app.use("/", chatRoute);
+app.use("/", userRoute);
+
+// app.use("/login", userRoute);
+app.use("/api/chat", privateRoomRoute);
 // app.use("/api/user", userRoute);
 
 server.listen(port, () => {

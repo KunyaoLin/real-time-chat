@@ -13,7 +13,7 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { useNavigate } from "react-router-dom";
 import Logo from "./logo";
-const PROT = process.env.REACT_APP_LOGIN_URL;
+const URL = process.env.REACT_APP_SERVER_URL;
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -33,7 +33,7 @@ function Login() {
     const message = { email, password };
     console.log(message);
     try {
-      const response = await fetch(`${PROT}`, {
+      const response = await fetch(`${URL}/login`, {
         method: "POST",
         headers: {
           "Content-type": "application/json",
@@ -103,6 +103,7 @@ function Login() {
                 label="Email"
                 margin="normal"
                 variant="outlined"
+                type="email"
                 value={email}
                 onChange={handEmailChange}
                 fullWidth

@@ -14,9 +14,9 @@ const signToken = (userId) => {
 
 const createSendToken = (user, statusCode, req, res) => {
   const token = signToken(user._id);
-  req.cookie("jwt", token, {
+  res.cookie("jwt", token, {
     expires: new Date(
-      Date.now + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
     ),
     httpOnly: true,
     secure: req.secure || req.header["x-forwarded-proto"] === "https", //when server run in http,req.secure return true
@@ -34,10 +34,15 @@ const createSendToken = (user, statusCode, req, res) => {
 exports.signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
     username: req.body.username,
-    email: req.body.emai,
+    email: req.body.email,
     password: req.body.password,
-    passwordComfirmed: req.body.passwordComfirmed,
+    passwordConfirmed: req.body.passwordConfirmed,
   });
+  //   res.status(200).json({
+  //     status: "success",
+  //     data: { newUser },
+  //   });
+
   createSendToken(newUser, 200, req, res);
   // add send email to recipient function
 });
@@ -47,15 +52,17 @@ exports.login = catchAsync(async (req, res, next) => {
   if (!email && !password)
     return next(appError("Please provide email and password", 400)); //insure got the user info from req
 
-  res.status(200).json({
-    status: "success",
-    message: "welcome to real-chat room",
-  });
-  //还没创建 user model
-  // const user = await User.findOne({ email }).select("+password");
-  // if (!user || (await user.correctPassword(password, user.password)))
-  //   return next(appError("Incorrect Email and password", 401));
-  // createSendToken(user, 200, req, res);
+  //   res.status(200).json({
+  //     status: "success",
+  //     correct: correct,
+  //     message: "welcome to real-chat room",
+  //     data: { user },
+  //   });
+  const user = await User.findOne({ email }).select("+password");
+  if (!user || !(await user.correctPassword(password, user.password))) {
+    return next(appError("Incorrect Email and password", 401));
+  }
+  createSendToken(user, 200, req, res);
 }); //compare the candidatePassword with database'password
 
 //logout
@@ -104,6 +111,10 @@ exports.protectTo = catchAsync(async (req, res, next) => {
 //check room permission VIP/ Regular room and restrict
 exports.restrictTo = (req, res, next) => {
   //check the room role and user role
+};
+exports.isLoggedIn = (req, res, next) => {
+  if (!req.cookie) {
+  }
 };
 //forget password
 

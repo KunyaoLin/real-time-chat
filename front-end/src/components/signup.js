@@ -1,16 +1,52 @@
 import { Button, TextField } from "@mui/material";
+import React, { useState } from "react";
 import Logo from "./logo";
-
+const URL = process.env.REACT_APP_SERVER_URL;
 function Signup() {
-  const handleSubmit = (e) => {
+  const [username, setUserName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordConfirmed, setPSWconfirmed] = useState("");
+  const handleUsername = (e) => {
+    setUserName(e.target.value);
+  };
+  const handleEmail = (e) => {
+    setEmail(e.target.value);
+  };
+  const handlePassword = (e) => {
+    setPassword(e.target.value);
+  };
+  const handlePWSconfirmed = (e) => {
+    setPSWconfirmed(e.target.value);
+  };
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const userName = e.target.elements.userName.value;
-    const email = e.target.elements.email.value;
-    const password = e.target.elements.password.value;
-
-    console.log(userName);
-    console.log(email);
-    console.log(password);
+    const data = { username, email, password, passwordConfirmed };
+    try {
+      if (
+        username === "" ||
+        email === "" ||
+        password === "" ||
+        passwordConfirmed === ""
+      )
+        throw new Error("Please complete your sign up form!");
+      const response = await fetch(`${URL}/signup`, {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error("Sign up error!");
+      setUserName("");
+      setEmail("");
+      setPassword("");
+      setPSWconfirmed("");
+      console.log(response);
+    } catch (err) {
+      console.log(err);
+      alert(err);
+    }
   };
   return (
     <div className="flex min-h-screen justify-center items-center">
@@ -36,8 +72,8 @@ function Signup() {
               margin="normal"
               id="userName"
               variant="outlined"
-              //   value={email}
-              //   onChange={handEmailChange}
+              value={username}
+              onChange={handleUsername}
               fullWidth
               sx={{
                 width: "386.02px",
@@ -46,9 +82,12 @@ function Signup() {
             ></TextField>
             <TextField
               label="Email"
+              type="email"
               margin="normal"
               variant="outlined"
               id="email"
+              value={email}
+              onChange={handleEmail}
               fullWidth
               sx={{
                 width: "386.02px",
@@ -57,10 +96,33 @@ function Signup() {
             ></TextField>
             <TextField
               label="Password"
+              type="password"
               margin="normal"
               variant="outlined"
               id="password"
+              value={password}
+              onChange={handlePassword}
               fullWidth
+              inputProps={{
+                minLength: 8,
+              }}
+              sx={{
+                width: "386.02px",
+                height: "60.98px",
+              }}
+            ></TextField>
+            <TextField
+              label="Confirm Password"
+              type="password"
+              margin="normal"
+              variant="outlined"
+              id="ConfirmedPSD"
+              fullWidth
+              value={passwordConfirmed}
+              onChange={handlePWSconfirmed}
+              inputProps={{
+                minLength: 8,
+              }}
               sx={{
                 width: "386.02px",
                 height: "60.98px",
@@ -71,7 +133,7 @@ function Signup() {
               type="submit"
               sx={{
                 width: "386px",
-                mt: 4,
+                mt: 2,
               }}
             >
               Sign Up

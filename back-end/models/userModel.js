@@ -21,7 +21,7 @@ const userSchema = new moongoose.Schema({
   role: {
     type: String,
     enum: ["regular", "VIP"],
-    default: "user",
+    default: "regular",
   },
   password: {
     type: String,
@@ -29,7 +29,7 @@ const userSchema = new moongoose.Schema({
     minlength: 8,
     select: false,
   },
-  passwordComfirmed: {
+  passwordConfirmed: {
     type: String,
     require: [true, "please confirm your password"],
     validate: {
@@ -58,7 +58,7 @@ const userSchema = new moongoose.Schema({
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   this.password = await bcrypt.hash(this.password, 12);
-  this.passwordComfirmed = undefined;
+  this.passwordConfirmed = undefined;
   next();
 });
 //edit passwordChangeAt, only work on user create this model first time or change password. JWTStamp > passwordChangeAt, user need to login again
@@ -77,7 +77,7 @@ userSchema.methods.correctPassword = async function (
   candidatePassword,
   userPassword
 ) {
-  return await bash.compare(candidatePassword, userPassword);
+  return await bcrypt.compare(candidatePassword, userPassword);
 };
 //determine the validity of JWT, JWTTimeStamp < changeTimeStamp =true,user have to login again
 userSchema.methods.changePasswordAfter = function (JWTTimeStamp) {
