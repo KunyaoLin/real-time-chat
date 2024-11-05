@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import "@fontsource/roboto/400.css";
-// const socket = io(`http://localhost:${process.env.PORT}`);
-const socket = io("http://localhost:3001", { transports: ["websocket"] });
-
+import axios from "axios";
+const URL = process.env.REACT_APP_SERVER_URL;
+let socket;
 function BaseRoom() {
+  const navigate = useNavigate();
+
   const [inputMessage, setInputMessage] = useState("");
   const [showMessage, setshowMessage] = useState([]);
   const handleInput = (e) => {
@@ -25,30 +28,45 @@ function BaseRoom() {
   const handleReset = () => {
     setshowMessage([]);
   };
+  const messageListener = (msg) => {
+    if (msg.senderId !== socket.id)
+      setshowMessage((premessage) => [...premessage, msg]);
+  };
+  //揭秘jwt获取id，重写这个useEffect 用cookie判断是否登陆账户
   useEffect(() => {
-    socket.on("connect", () => {
-      console.log("Connected to server with ID", socket.id);
-    });
-    const messageListener = (msg) => {
-      if (msg.senderId !== socket.id)
-        setshowMessage((premessage) => [...premessage, msg]);
-    };
-    socket.on("message", messageListener);
-    return () => {
-      socket.off("message", messageListener);
-    };
-  }, []);
+    async function checkLogin() {
+      try {
+        const response = await axios({
+          method: "GET",
+          url: `${URL}/api/auth`,
+          withCredentials: true,
+        });
+        if (response.data.status === "success") {
+          socket = io(`${URL}`, {
+            transports: ["websocket"],
+          });
+          socket.on("connect", () => {
+            console.log("connected to server with ID ", socket.id);
+          });
+          socket.on("message", messageListener);
 
-  // useEffect(() => {
-  //   async function fetchData() {
-  //     try {
-  //       const response = await fetch(`http://localhost:${process.env.PORT}`);
-  //       const data = await response.json();
-  //       setshowMessage((premessage) => [...premessage, data.message]);
-  //     } catch (err) {}
-  //   }
-  //   fetchData();
-  // }, []);
+          console.log(response);
+        }
+      } catch (err) {
+        console.log("Not authenticated", err);
+        navigate("/login");
+      }
+    }
+    checkLogin();
+
+    return () => {
+      if (socket) {
+        socket.off("connect");
+        socket.off("message", messageListener);
+        socket.disconnect();
+      }
+    };
+  }, [navigate]);
 
   return (
     <>

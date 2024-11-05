@@ -19,8 +19,12 @@ const createSendToken = (user, statusCode, req, res) => {
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
     ),
     httpOnly: true,
-    secure: req.secure || req.headers["x-forwarded-proto"] === "https", //when server run in http,req.secure return true
-    sameSite: "None",
+
+    secure:
+      req.secure ||
+      (process.env.NODE_ENV === "production" &&
+        req.headers["x-forwarded-proto" === "https"]), //when server run in http,req.secure return true
+    sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
   });
   user.password = undefined;
   res.status(statusCode).json({
@@ -84,10 +88,10 @@ exports.protectTo = catchAsync(async (req, res, next) => {
   let token;
   if (
     req.headers.authorization &&
-    req.headers.authorization.startWith("bearer")
+    req.headers.authorization.startsWith("Bearer")
   )
     token = req.headers.authorization.split(" ")[1];
-  else if (req.cookie.jwt) token = req.cookie.jwt;
+  else if (req.cookies.jwt) token = req.cookies.jwt;
   if (!token)
     return next(new appError("You are not login, please login your account"));
 
@@ -106,6 +110,7 @@ exports.protectTo = catchAsync(async (req, res, next) => {
 
   req.user = currentUser;
   res.locals.user = currentUser;
+  next();
   //this user_id is include in this room? build later
 });
 
@@ -114,10 +119,27 @@ exports.protectTo = catchAsync(async (req, res, next) => {
 exports.restrictTo = (req, res, next) => {
   //check the room role and user role
 };
-exports.isLoggedIn = (req, res, next) => {
-  if (!req.cookie) {
+exports.isLoggedIn = catchAsync(async (req, res) => {
+  const token = req.cookies.jwt;
+  if (!token) {
+    res.status(401).json({
+      status: "error",
+      message: "Not authenicated, Please login in your account",
+    });
   }
-};
+  jwt.verify(token, process.env.JWT_SECRECT_KEY, (err, decode) => {
+    if (err)
+      res.status(403).json({
+        status: "error",
+        message: "Invalid token",
+      });
+    res.status(200).json({
+      status: "success",
+      message: "Authenticated",
+      user: decode,
+    });
+  });
+});
 //forget password
 
 //update password

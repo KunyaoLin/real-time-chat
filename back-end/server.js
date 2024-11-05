@@ -1,4 +1,5 @@
 //hello world
+const authController = require("./controllers/authController");
 const privateRoomRoute = require("./routes/privateChatRouters");
 const userRoute = require("./routes/userRouters");
 const dotenv = require("dotenv");
@@ -8,8 +9,8 @@ const { Server } = require("socket.io");
 const cors = require("cors");
 const app = express();
 const http = require("http");
-const chatRoute = require("./routes/chatRouters");
 const mongoose = require("mongoose");
+const chatRoute = require("./routes/chatRouters");
 dotenv.config({ path: "./config.env" });
 const DB_URL = process.env.DATABASE_URL.replace(
   "<db_password>",
@@ -51,13 +52,12 @@ io.on("connection", (socket) => {
     console.log("user disconnected");
   });
 });
+// app.use("/login", authController.login);
+// app.use("/signup", authController.signup);
 
-// app.use("/", chatRoute);
 app.use("/", userRoute);
-
-// app.use("/login", userRoute);
-app.use("/api/chat", privateRoomRoute);
-// app.use("/api/user", userRoute);
+app.get("/api/auth", authController.isLoggedIn);
+// app.use("/api/chat", privateRoomRoute);
 
 server.listen(port, () => {
   console.log(`server is running on port ${port}`);

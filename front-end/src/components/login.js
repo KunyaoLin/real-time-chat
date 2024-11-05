@@ -25,23 +25,7 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // try {
-    //   const response = await fetch(`${URL}/login`, {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-type": "application/json",
-    //     },
-    //     body: JSON.stringify(message),
-    //     credentials: "include",
-    //     //allow carry cookie
-    //   });
-    //   const data = await response.json();
-    //   console.log(response);
-    //   console.log(data);
-    //   if (!data) throw new Error("Something wrong:");
-    // } catch (err) {
-    //   console.log(err);
-    // }
+
     try {
       const res = await axios({
         method: "POST",
@@ -50,13 +34,14 @@ function Login() {
           email,
           password,
         },
+        withCredentials: true,
       });
       console.log(res);
       if (res.data.status === "success") {
         showAlert("success", "login successfully");
-        // window.setTimeout(() => {
-        //   window.location.assign("/signup");
-        // }, 1500);
+        window.setTimeout(() => {
+          window.location.assign("/menu");
+        }, 1500);
       }
     } catch (err) {
       if (err.status === 401)

@@ -1,12 +1,13 @@
 exports.sendMessage = (req, res, next) => {
   const io = req.app.get("io");
+  console.log(io.id);
   const { message } = req.body;
   if (!message)
     return res.status(400).json({
       error: "Message content is required",
     });
   io.emit("message", message);
-  console.log("Broadcast message from API", message);
+  console.log(`${req.user.username}:`, message);
   res.status(200).json({ status: "Message broadcast successfully" });
 };
 exports.getMessages = (req, res, next) => {
