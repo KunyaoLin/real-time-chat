@@ -19,7 +19,8 @@ const createSendToken = (user, statusCode, req, res) => {
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
     ),
     httpOnly: true,
-    secure: req.secure || req.header["x-forwarded-proto"] === "https", //when server run in http,req.secure return true
+    secure: req.secure || req.headers["x-forwarded-proto"] === "https", //when server run in http,req.secure return true
+    sameSite: "None",
   });
   user.password = undefined;
   res.status(statusCode).json({
@@ -49,8 +50,9 @@ exports.signup = catchAsync(async (req, res, next) => {
 //login
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
+  console.log(email, password);
   if (!email && !password)
-    return next(appError("Please provide email and password", 400)); //insure got the user info from req
+    return next(new appError("Please provide email and password", 400)); //insure got the user info from req
 
   //   res.status(200).json({
   //     status: "success",
@@ -60,7 +62,7 @@ exports.login = catchAsync(async (req, res, next) => {
   //   });
   const user = await User.findOne({ email }).select("+password");
   if (!user || !(await user.correctPassword(password, user.password))) {
-    return next(appError("Incorrect Email and password", 401));
+    return next(new appError("Incorrect Email and password", 401));
   }
   createSendToken(user, 200, req, res);
 }); //compare the candidatePassword with database'password
@@ -87,7 +89,7 @@ exports.protectTo = catchAsync(async (req, res, next) => {
     token = req.headers.authorization.split(" ")[1];
   else if (req.cookie.jwt) token = req.cookie.jwt;
   if (!token)
-    return next(appError("You are not login, please login your account"));
+    return next(new appError("You are not login, please login your account"));
 
   //verify token
   const decode = await promisify(jwt.verify)(
@@ -98,7 +100,7 @@ exports.protectTo = catchAsync(async (req, res, next) => {
   const currentUser = await User.findById(decode.userId);
   if (!currentUser)
     return next(
-      appError("the user belongs to this token is no longer exist", 401)
+      new appError("the user belongs to this token is no longer exist", 401)
     );
   //return user to req and res
 

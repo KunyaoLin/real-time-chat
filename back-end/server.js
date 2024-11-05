@@ -3,6 +3,7 @@ const privateRoomRoute = require("./routes/privateChatRouters");
 const userRoute = require("./routes/userRouters");
 const dotenv = require("dotenv");
 const express = require("express");
+const cookieParser = require("cookie-parser");
 const { Server } = require("socket.io");
 const cors = require("cors");
 const app = express();
@@ -23,7 +24,8 @@ mongoose
   .then((el) => {
     console.log("database connected successfully");
   });
-app.use(cors());
+app.enable("trust proxy");
+app.use(cors({ origin: `${process.env.FRONT_END_URL}`, credentials: true }));
 // app.use(cors({ origin: `${process.env.FRONT_END_URL}` }));
 const server = http.createServer(app);
 
@@ -37,7 +39,7 @@ const io = new Server(server, {
 app.set("io", io);
 app.use(express.json());
 app.use(express.static("public"));
-
+app.use(cookieParser());
 // require("dotenv").config({ path: "./config.env" });
 io.on("connection", (socket) => {
   console.log("one user connected ", socket.id);

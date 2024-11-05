@@ -1,23 +1,20 @@
 import React, { useState } from "react";
+import axios from "axios";
 import {
   Card,
   Box,
-  IconButton,
-  InputAdornment,
   CardContent,
   Typography,
   TextField,
   Button,
 } from "@mui/material";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { useNavigate } from "react-router-dom";
 import Logo from "./logo";
+import { showAlert } from "../ult/alert";
 const URL = process.env.REACT_APP_SERVER_URL;
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const handEmailChange = (e) => {
     setEmail(e.target.value);
@@ -25,27 +22,45 @@ function Login() {
   const handPasswordChange = (e) => {
     setPassword(e.target.value);
   };
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const message = { email, password };
-    console.log(message);
+    // try {
+    //   const response = await fetch(`${URL}/login`, {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-type": "application/json",
+    //     },
+    //     body: JSON.stringify(message),
+    //     credentials: "include",
+    //     //allow carry cookie
+    //   });
+    //   const data = await response.json();
+    //   console.log(response);
+    //   console.log(data);
+    //   if (!data) throw new Error("Something wrong:");
+    // } catch (err) {
+    //   console.log(err);
+    // }
     try {
-      const response = await fetch(`${URL}/login`, {
+      const res = await axios({
         method: "POST",
-        headers: {
-          "Content-type": "application/json",
+        url: `${URL}/login`,
+        data: {
+          email,
+          password,
         },
-        body: JSON.stringify(message),
       });
-      const data = await response.json();
-      console.log(response);
-      console.log(data);
-      if (!data) throw new Error("Something wrong:");
+      console.log(res);
+      if (res.data.status === "success") {
+        showAlert("success", "login successfully");
+        // window.setTimeout(() => {
+        //   window.location.assign("/signup");
+        // }, 1500);
+      }
     } catch (err) {
-      console.log(err);
+      if (err.status === 401)
+        showAlert("error", "Incorrect Email and password");
     }
   };
   const handleSignup = () => {
@@ -113,18 +128,9 @@ function Login() {
                 margin="normal"
                 variant="outlined"
                 value={password}
-                type={showPassword ? "text" : "password"}
+                type="password"
                 onChange={handPasswordChange}
                 fullWidth
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton onClick={togglePasswordVisibility} edge="end">
-                        {showPassword ? <Visibility /> : <VisibilityOff />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
               ></TextField>
 
               <Typography
