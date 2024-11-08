@@ -6,14 +6,15 @@ const URL = process.env.REACT_APP_SERVER_URL;
 function Logout() {
   const navigate = useNavigate();
   const handleLogout = async () => {
+    const answer = window.confirm("Do you want to log our your account?");
     try {
       const res = await axios({
         method: "GET",
         url: `${URL}/logout`,
         withCredentials: true,
       });
-      console.log(res);
-      if (res.data.status === "logout successfully") navigate("/login");
+      if (res.data.status === "logout successfully" && answer)
+        navigate("/login");
     } catch (err) {
       console.log(err);
     }

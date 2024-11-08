@@ -142,5 +142,12 @@ exports.isLoggedIn = catchAsync(async (req, res) => {
 });
 //forget password
 
+exports.forgetPassword = (req, res, next) => {
+  //input your email info
+  const user = User.findOne({ email: req.body.email });
+  //create new email template
+  //when the user click the link, navigate them to reset password page
+  //back to login
+};
 //update password
 //reset password

@@ -6,6 +6,7 @@ const userRoute = express.Router({ mergeParams: true });
 userRoute.route("/login").post(authController.login);
 userRoute.route("/signup").post(authController.signup);
 userRoute.route("/logout").get(authController.logout);
+userRoute.route("/forgetPassword").post(authController.forgetPassword);
 userRoute.route("/").post(authController.login);
 userRoute.use(authController.protectTo);
 module.exports = userRoute;

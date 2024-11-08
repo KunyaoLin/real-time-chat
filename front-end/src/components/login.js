@@ -22,10 +22,12 @@ function Login() {
   const handPasswordChange = (e) => {
     setPassword(e.target.value);
   };
+  const handleForgetPassword = () => {
+    navigate("/forgetPassword");
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       const res = await axios({
         method: "POST",
@@ -119,6 +121,7 @@ function Login() {
               ></TextField>
 
               <Typography
+                onClick={handleForgetPassword}
                 variant="body2"
                 color="blue"
                 sx={{ mt: 2, cursor: "pointer" }}
