@@ -74,7 +74,7 @@ exports.login = catchAsync(async (req, res, next) => {
 //logout
 exports.logout = (req, res, next) => {
   //change cookie expire date to 10 sec
-  req.cookie("jwt", "loggedOut", {
+  res.cookie("jwt", "loggedOut", {
     expires: new Date(Date.now() + 10 * 1000),
     httponly: true,
   });

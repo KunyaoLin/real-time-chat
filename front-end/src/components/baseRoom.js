@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import "@fontsource/roboto/400.css";
+import { CircularProgress, Box } from "@mui/material";
 import axios from "axios";
+import Logout from "./logout";
 const URL = process.env.REACT_APP_SERVER_URL;
 let socket;
 function BaseRoom() {
@@ -10,6 +12,7 @@ function BaseRoom() {
 
   const [inputMessage, setInputMessage] = useState("");
   const [showMessage, setshowMessage] = useState([]);
+  const [isAuthenticated, setAuthenticated] = useState(false);
   const handleInput = (e) => {
     setInputMessage(e.target.value);
   };
@@ -32,7 +35,6 @@ function BaseRoom() {
     if (msg.senderId !== socket.id)
       setshowMessage((premessage) => [...premessage, msg]);
   };
-  //揭秘jwt获取id，重写这个useEffect 用cookie判断是否登陆账户
   useEffect(() => {
     async function checkLogin() {
       try {
@@ -42,6 +44,7 @@ function BaseRoom() {
           withCredentials: true,
         });
         if (response.data.status === "success") {
+          setAuthenticated(true);
           socket = io(`${URL}`, {
             transports: ["websocket"],
           });
@@ -54,6 +57,7 @@ function BaseRoom() {
         }
       } catch (err) {
         console.log("Not authenticated", err);
+        setAuthenticated(false);
         navigate("/login");
       }
     }
@@ -68,11 +72,16 @@ function BaseRoom() {
     };
   }, [navigate]);
 
-  return (
-    <>
-      <header className="flex justify-center">
-        <p> Welcome to my real-time chat room</p>
-      </header>
+  return isAuthenticated ? (
+    <div>
+      {" "}
+      <div className="grid grid-cols-3 text-center w-full h-10  items-center">
+        <div></div>
+        <div className="w-full"> Welcome to my real-time chat room</div>
+        <div className="flex justify-end">
+          <Logout />
+        </div>
+      </div>
       <div className="border flex-col items-center flex h-80 p-2">
         <div className="p-2 m-2 h-20 w-44">
           <p>Public Message</p>
@@ -111,7 +120,11 @@ function BaseRoom() {
           </button>
         </form>
       </div>
-    </>
+    </div>
+  ) : (
+    <Box sx={{ display: "flex" }}>
+      <CircularProgress />
+    </Box>
   );
 }
 export default BaseRoom;
