@@ -42,12 +42,10 @@ const userSchema = new moongoose.Schema({
   passwordChangeAt: {
     type: Date,
   },
-  passwordResetToken: {
-    type: String,
-  },
-  passwordResetExpires: {
-    type: Date,
-  },
+  passwordResetToken: String,
+
+  passwordResetExpires: Date,
+
   active: {
     type: Boolean,
     select: false,

@@ -1,8 +1,11 @@
 import { Button, TextField } from "@mui/material";
 import React, { useState } from "react";
 import Logo from "./logo";
+import { useNavigate } from "react-router-dom";
+import { showAlert } from "../ult/alert";
 const URL = process.env.REACT_APP_SERVER_URL;
 function Signup() {
+  const navigate = useNavigate();
   const [username, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -42,7 +45,10 @@ function Signup() {
       setEmail("");
       setPassword("");
       setPSWconfirmed("");
-      console.log(response);
+      showAlert("success", "Create successfully!");
+      window.setTimeout(() => {
+        navigate("/login");
+      }, 1500);
     } catch (err) {
       console.log(err);
       alert(err);

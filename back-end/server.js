@@ -16,15 +16,9 @@ const DB_URL = process.env.DATABASE_URL.replace(
   "<db_password>",
   process.env.DATABASE_PASSWORD
 );
-console.log(DB_URL);
-mongoose
-  .connect(DB_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then((el) => {
-    console.log("database connected successfully");
-  });
+mongoose.connect(DB_URL).then((el) => {
+  console.log("database connected successfully");
+});
 app.enable("trust proxy");
 app.use(cors({ origin: `${process.env.FRONT_END_URL}`, credentials: true }));
 // app.use(cors({ origin: `${process.env.FRONT_END_URL}` }));

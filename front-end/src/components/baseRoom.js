@@ -56,7 +56,7 @@ function BaseRoom() {
           console.log(response);
         }
       } catch (err) {
-        console.log("Not authenticated", err);
+        console.log("Not authenticated");
         setAuthenticated(false);
         navigate("/login");
       }

@@ -28,6 +28,7 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       const res = await axios({
         method: "POST",
@@ -126,7 +127,6 @@ function Login() {
                 color="blue"
                 sx={{ mt: 2, cursor: "pointer" }}
               >
-                {" "}
                 Forget Password?
               </Typography>
               <Typography

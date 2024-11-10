@@ -1,10 +1,11 @@
 const nodemailer = require("nodemailer");
-const ReactDOMServer = require("react-dom/server");
+const pug = require("pug");
 const { htmlToText } = require("html-to-text");
 module.exports = class Email {
-  constructor(username, url) {
+  constructor(user, url) {
     this.from = "realChat@gmail.com";
-    this.to = username;
+    this.to = user.email;
+    this.user = user.username;
     this.url = url;
   }
   transporter() {
@@ -23,5 +24,33 @@ module.exports = class Email {
       });
     }
   }
-  async sendEmail(template, subject) {}
+  async send(template, subject) {
+    try {
+      const html = pug.renderFile(`${__dirname}/../emailView/${template}.pug`, {
+        username: this.user,
+        url: this.url,
+        subject,
+      });
+      const mailOptions = {
+        from: this.from,
+        to: this.to,
+        subject,
+        text: htmlToText(html),
+        html,
+      };
+      await this.transporter().sendMail(mailOptions);
+      console.log("Email sent successfully!!");
+    } catch (err) {
+      console.log("Email sent error");
+    }
+  }
+  async sendWelcom() {
+    await this.send("welcome", "Welcom to RealChat");
+  }
+  async sendPasswordForget() {
+    await this.send(
+      "forgetPassword",
+      "Your password reset token only valid for 10 minutes"
+    );
+  }
 };
