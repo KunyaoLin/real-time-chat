@@ -121,13 +121,15 @@ exports.protectTo = catchAsync(async (req, res, next) => {
 exports.restrictTo = (req, res, next) => {
   //check the room role and user role
 };
-exports.isLoggedIn = catchAsync(async (req, res) => {
+exports.isLoggedIn = catchAsync(async (req, res, next) => {
   const token = req.cookies.jwt;
   if (!token) {
-    res.status(401).json({
-      status: "error",
-      message: "Not authenicated, Please login in your account",
-    });
+    return next(
+      res.status(401).json({
+        status: "error",
+        message: "Not authenicated, Please login in your account",
+      })
+    );
   }
   jwt.verify(token, process.env.JWT_SECRECT_KEY, (err, decode) => {
     if (err)
@@ -135,6 +137,7 @@ exports.isLoggedIn = catchAsync(async (req, res) => {
         status: "error",
         message: "Invalid token",
       });
+
     res.status(200).json({
       status: "success",
       message: "Authenticated",

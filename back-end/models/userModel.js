@@ -4,54 +4,65 @@ const bcrypt = require("bcrypt");
 const validator = require("validator");
 //bcrypt => password, crypto=>token
 
-const userSchema = new moongoose.Schema({
-  username: {
-    type: String,
-    required: [true, "userName is required"],
-  },
-  email: {
-    type: String,
-    required: [true, "email is required"],
-    validate: [validator.isEmail, "please provide a valid email"],
-    unique: true,
-  },
-  avator: {
-    type: String,
-  },
-  role: {
-    type: String,
-    enum: ["regular", "VIP"],
-    default: "regular",
-  },
-  password: {
-    type: String,
-    required: [true, "please provide your password"],
-    minlength: 8,
-    select: false,
-  },
-  passwordConfirmed: {
-    type: String,
-    require: [true, "please confirm your password"],
-    validate: {
-      validator: function (el) {
-        return el === this.password;
+const userSchema = new moongoose.Schema(
+  {
+    username: {
+      type: String,
+      required: [true, "userName is required"],
+    },
+    email: {
+      type: String,
+      required: [true, "email is required"],
+      validate: [validator.isEmail, "please provide a valid email"],
+      unique: true,
+    },
+    avator: {
+      type: String,
+    },
+    role: {
+      type: String,
+      enum: ["regular", "VIP"],
+      default: "regular",
+    },
+    password: {
+      type: String,
+      required: [true, "please provide your password"],
+      minlength: 8,
+      select: false,
+    },
+    passwordConfirmed: {
+      type: String,
+      require: [true, "please confirm your password"],
+      validate: {
+        validator: function (el) {
+          return el === this.password;
+        },
+        message: "Passwords are not the same",
       },
-      message: "Passwords are not the same",
+    },
+    passwordChangeAt: {
+      type: Date,
+    },
+    passwordResetToken: String,
+
+    passwordResetExpires: Date,
+    friends: {
+      type: [String],
+      validate: {
+        validator: function (emails) {
+          return emails.every((email) => /^\S+@\S+\.\S+$/.test(email));
+        },
+        message: (props) => `${props.value} include unvalid email address`,
+      },
+    },
+    active: {
+      type: Boolean,
+      select: false,
+      default: true,
     },
   },
-  passwordChangeAt: {
-    type: Date,
-  },
-  passwordResetToken: String,
-
-  passwordResetExpires: Date,
-
-  active: {
-    type: Boolean,
-    select: false,
-    default: true,
-  },
-});
+  { versionKey: false }
+);
 // this only work on user create or change password
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();

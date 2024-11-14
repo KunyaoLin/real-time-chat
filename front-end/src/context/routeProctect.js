@@ -23,22 +23,7 @@ const AuthProvider = ({ children }) => {
       payload: type === "login" ? true : false,
     });
   }
-  // useEffect(() => {
-  //   async function checkLoggedIn() {
-  //     try {
-  //       const res = await axios({
-  //         method: "GET",
-  //         url: `${URL}/api/auth`,
-  //         withCredentials: true,
-  //       });
-  //       if (res.data.status !== "success") window.location.assign("/login");
-  //       console.log(res);
-  //     } catch (err) {
-  //       console.log(err);
-  //     }
-  //   }
-  //   checkLoggedIn();
-  // }, []);
+
   return (
     <AuthContext.Provider value={{ isAuthenticated, editAuthenticated }}>
       {children}
