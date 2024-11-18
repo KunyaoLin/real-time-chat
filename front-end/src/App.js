@@ -1,4 +1,4 @@
-import BaseRoom from "./components/baseRoom";
+// import BaseRoom from "./components/baseRoom";
 import Login from "./components/login";
 import {
   BrowserRouter as Router,
@@ -10,6 +10,7 @@ import "./styles.css";
 import Signup from "./components/signup";
 import { ResetPassword } from "./components/resetPassword";
 import { ForgetPassword } from "./components/forgetPassword";
+import Menu from "./components/menu";
 function App() {
   return (
     <Router>
@@ -17,7 +18,7 @@ function App() {
         <Route path="*" element={<Navigate to="/login" />}></Route>
         <Route path="/login" element={<Login />}></Route>
         <Route path="/signup" element={<Signup />}></Route>
-        <Route path="/menu" element={<BaseRoom />}></Route>
+        <Route path="/menu" element={<Menu />}></Route>
         <Route path="/forgetPassword" element={<ForgetPassword />}></Route>
 
         <Route path="/resetPassword/:token" element={<ResetPassword />}></Route>

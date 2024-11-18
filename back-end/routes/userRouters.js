@@ -9,12 +9,17 @@ userRoute.route("/logout").get(authController.protectTo, authController.logout);
 userRoute.route("/forgetPassword").post(authController.forgetPassword);
 userRoute.route("/resetPassword/:token").patch(authController.resetPassword);
 
-userRoute.use("/friends/request", authController.protectTo);
+userRoute.use("/friends", authController.protectTo);
+userRoute.route("/friends/getAllFriends").get(userController.getAllFriends);
+userRoute.route("/friends/blockFriend").patch(userController.blockFriend);
+userRoute.route("/friends/unblockFriend").patch(userController.unblockFriend);
+
 userRoute
   .route("/friends/request")
   .post(userController.sendFriendreq)
   .get(userController.getAllFriendsReq);
 userRoute.route("/friends/request/accept").patch(userController.acceptFriend);
+userRoute.route("/friends/request/delete").delete(userController.deleteFriend);
 userRoute.route("/").post(authController.login);
 // userRoute.use(authController.protectTo);
 module.exports = userRoute;

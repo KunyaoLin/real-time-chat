@@ -46,15 +46,7 @@ const userSchema = new moongoose.Schema(
     passwordResetToken: String,
 
     passwordResetExpires: Date,
-    friends: {
-      type: [String],
-      validate: {
-        validator: function (emails) {
-          return emails.every((email) => /^\S+@\S+\.\S+$/.test(email));
-        },
-        message: (props) => `${props.value} include unvalid email address`,
-      },
-    },
+
     active: {
       type: Boolean,
       select: false,

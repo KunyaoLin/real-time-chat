@@ -10,9 +10,9 @@ import {
 import Logo from "./logo";
 import axios from "axios";
 import { showAlert } from "../ult/alert";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 export function ForgetPassword() {
-  const navigate = useNavigate();
+  //   const navigate = useNavigate();
   const URL = process.env.REACT_APP_SERVER_URL;
   const [email, setEmail] = useState("");
   const [sending, setSending] = useState(false);
