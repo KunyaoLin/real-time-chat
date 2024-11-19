@@ -8,6 +8,9 @@ function ContactPopUp() {
   const [animateout, setAnimateout] = useState(false);
   const popUpRef = useRef(null);
   const name = "defaultUser";
+  const online1 = true;
+  const online2 = false;
+
   const handleAnimate = () => {
     setAnimateout(true);
     setTimeout(() => {
@@ -50,10 +53,13 @@ function ContactPopUp() {
       <MessageInform num={99} />
       {visiable && (
         <div
-          className={`contactpopUp ${animateout ? "hidden" : "active"}`}
+          className={`contactpopUp ${
+            animateout ? "hidden" : "active"
+          } space-y-1`}
           ref={popUpRef}
         >
-          <ContactIcon name={name} />
+          <ContactIcon name={name} online={online1} />
+          <ContactIcon name={name} online={online2} />
         </div>
       )}
     </div>

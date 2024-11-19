@@ -46,16 +46,6 @@
     opacity: 0;
   }
 }
-/* @keyframes popUpHide {
-  0% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-10px) scale(0.95);
-  }
-} */
 
 .popUp {
   position: absolute;
@@ -84,7 +74,7 @@
 
 .contactpopUp {
   position: absolute;
-  top: -75px;
+  top: -76px;
   left: 150%;
   width: 300px;
   height: 97vh;

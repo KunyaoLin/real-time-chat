@@ -2,13 +2,14 @@ import React, { useEffect, useRef, useState } from "react";
 import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
 import "../styles.css";
 import MessageInform from "./MessageInform";
-import ContactIcon from "./contactIcon";
+import ChatIcon from "./chatIcon";
 function ChatPopUp() {
   const [visiable, setVisiable] = useState(false);
   const [animateout, setAnimateout] = useState(false);
 
   const popUpRef = useRef(null);
-  const name = "defaultUser";
+  const name = "userImg2";
+  const msg = "Hi, how is going today?";
   const handleAnimate = () => {
     setAnimateout(true);
     setTimeout(() => {
@@ -57,10 +58,13 @@ function ChatPopUp() {
 
       {visiable && (
         <div
-          className={`popUp ${animateout ? "hidden" : "active"}`}
+          className={`popUp ${animateout ? "hidden" : "active"} `}
           ref={popUpRef}
         >
-          <ContactIcon name={name} />
+          <div className="flex flex-col space-y-1">
+            <ChatIcon name={name} msg={msg} />
+            <ChatIcon name={name} msg={msg} />
+          </div>
         </div>
       )}
     </div>
