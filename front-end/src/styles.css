@@ -25,3 +25,107 @@
 .alert--error {
   background-color: #eb4d4b;
 }
+
+@keyframes slideInRight {
+  0% {
+    transform: translateX(-250px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+@keyframes slideOutRight {
+  0% {
+    transform: translateX(0px);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-50px);
+    opacity: 0;
+  }
+}
+/* @keyframes popUpHide {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+} */
+
+.popUp {
+  position: absolute;
+  top: -10px;
+  left: 150%;
+  width: 300px;
+  height: 97vh;
+  background-color: #94a3b8;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  display: none;
+}
+
+.popUp.active {
+  display: block;
+  animation: slideInRight 0.3s ease-out forwards;
+}
+
+.popUp.hidden {
+  display: block;
+
+  animation: slideOutRight 0.3s ease-out forwards;
+}
+
+.contactpopUp {
+  position: absolute;
+  top: -75px;
+  left: 150%;
+  width: 300px;
+  height: 97vh;
+  background-color: #94a3b8;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  display: none;
+}
+.contactpopUp.active {
+  display: block;
+  animation: slideInRight 0.3s ease-out forwards;
+}
+
+.contactpopUp.hidden {
+  display: block;
+
+  animation: slideOutRight 0.3s ease-out forwards;
+}
+
+.bellpopUp {
+  position: absolute;
+  top: -75px;
+  left: 150%;
+  width: 300px;
+  height: 97vh;
+  background-color: #94a3b8;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  display: none;
+}
+.bellpopUp.active {
+  display: block;
+  animation: slideInRight 0.3s ease-out forwards;
+}
+
+.bellpopUp.hidden {
+  display: block;
+
+  animation: slideOutRight 0.3s ease-out forwards;
+}

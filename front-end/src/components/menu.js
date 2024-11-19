@@ -1,14 +1,14 @@
 import React from "react";
-import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
 import { FaRegBell } from "react-icons/fa";
-import { MdAccountBox } from "react-icons/md";
-import LogoutIcon from "@mui/icons-material/Logout";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import SettingsIcon from "@mui/icons-material/Settings";
+import ChatPopUp from "./chatPopUp";
+import ContactPopUp from "./contactPopUp";
 
 function Menu() {
   return (
     <div
-      className="grid grid-cols-[50px_auto] w-full h-full bg-slate-900"
+      className="grid grid-cols-[50px_auto] w-full h-full bg-slate-800"
       style={{
         position: "fixed",
       }}
@@ -19,24 +19,19 @@ function Menu() {
             display: "flex",
             flexDirection: "column",
             gap: "30px",
-            marginTop: "10px",
+            marginTop: "20px",
           }}
         >
           <div
             style={{
               display: "flex",
               justifyContent: "center",
-              alignContent: "center",
+              alignItems: "center",
             }}
           >
-            <IoChatbubbleEllipsesOutline
-              style={{
-                color: "white",
-                fontSize: "25px",
-                strokeWidth: "0.8",
-              }}
-            />
+            <ChatPopUp />
           </div>
+
           <div
             style={{
               display: "flex",
@@ -44,7 +39,8 @@ function Menu() {
               alignContent: "center",
             }}
           >
-            <MdAccountBox style={{ color: "white", fontSize: "25px" }} />
+            {/* <MdAccountBox style={{ color: "white", fontSize: "30px" }} /> */}
+            <ContactPopUp />
           </div>
           <div
             style={{
@@ -54,7 +50,7 @@ function Menu() {
             }}
           >
             <div style={{ position: "relative", display: "inline-block" }}>
-              <FaRegBell style={{ color: "white", fontSize: "25px" }} />
+              <FaRegBell style={{ color: "white", fontSize: "30px" }} />
               <span
                 style={{
                   position: "absolute",
@@ -82,6 +78,7 @@ function Menu() {
           style={{
             display: "flex",
             marginTop: "auto",
+            paddingTop: "30px",
             paddingBottom: "10px",
             flexDirection: "column",
             justifyContent: "center",
@@ -89,17 +86,18 @@ function Menu() {
             gap: "30px",
           }}
         >
-          <LogoutIcon
+          <ExitToAppIcon
             sx={{
               color: "white",
+              fontSize: "30px",
             }}
           />
 
-          <SettingsIcon sx={{ color: "white" }} />
+          <SettingsIcon sx={{ color: "white", fontSize: "30px" }} />
         </div>
       </div>
-      <div className=" bg-slate-900 p-4">
-        <div className="bg-white m-4">2</div>
+      <div className=" bg-slate-900 min-h-screen flex flex-col">
+        <div className="bg-white m-1 flex-grow rounded-md"></div>
       </div>
     </div>
   );
