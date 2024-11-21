@@ -44,8 +44,8 @@ module.exports = class Email {
       console.log("Email sent error");
     }
   }
-  async sendWelcom() {
-    await this.send("welcome", "Welcom to RealChat");
+  async sendWelcome() {
+    await this.send("welcome", "Welcome to RealChat");
   }
   async sendPasswordForget() {
     await this.send(

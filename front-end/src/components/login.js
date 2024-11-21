@@ -11,11 +11,13 @@ import {
 import { useNavigate } from "react-router-dom";
 import Logo from "./logo";
 import { showAlert } from "../ult/alert";
+import { useAuth } from "../context/globalContext";
 const URL = process.env.REACT_APP_SERVER_URL;
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { editAuthenticated } = useAuth();
   const handEmailChange = (e) => {
     setEmail(e.target.value);
   };
@@ -39,16 +41,20 @@ function Login() {
         },
         withCredentials: true,
       });
-      console.log(res);
       if (res.data.status === "success") {
         showAlert("success", "login successfully");
+        editAuthenticated("login");
+        setEmail("");
+        setPassword("");
         window.setTimeout(() => {
-          window.location.assign("/menu");
+          window.location.assign("/dashboard");
         }, 1500);
       }
     } catch (err) {
       if (err.status === 401)
         showAlert("error", "Incorrect Email and password");
+      setEmail("");
+      setPassword("");
     }
   };
   const handleSignup = () => {

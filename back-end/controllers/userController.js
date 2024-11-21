@@ -18,6 +18,15 @@ exports.sendFriendreq = catchAsync(async (req, res) => {
     return res.status(200).json({
       message: "This user is already your friend",
     });
+  const friReq = await FriendReq.findOne({
+    receiverEmail: req.body.receiverEmail,
+    status: "pending",
+  });
+  if (friReq)
+    return res.status(200).json({
+      message:
+        "You already send friend request to this email account! please wait for response from your friend.",
+    });
   const currentUser = req.user;
   const friend = await User.findOne({
     email: `${req.body.receiverEmail}`,

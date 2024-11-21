@@ -1,9 +1,14 @@
 import React from "react";
 import Avatar from "@mui/material/Avatar";
+
 function ChatIcon(props) {
   return (
-    <div className="flex bg-slate-100 hover:bg-orange-100 rounded-lg p-1">
-      <span>
+    <div className="flex bg-slate-100 hover:bg-orange-100 rounded-lg p-1 mt-1 ml-1">
+      <span
+        style={{
+          position: "relative",
+        }}
+      >
         <Avatar
           src={`${props.name}.png`}
           alt={`${props.name}`}
@@ -11,6 +16,7 @@ function ChatIcon(props) {
             fontSize: 10,
           }}
         />
+
         <span
           style={{
             position: "absolute",
@@ -18,15 +24,17 @@ function ChatIcon(props) {
             height: "8px",
             transform: "translateX(350%) translateY(-90%)",
             borderRadius: "50%",
-            backgroundColor: "green",
+            backgroundColor: `${props.online ? "green" : "grey"}`,
+            animation: "ripple 1.2s infinite ease-in-out",
           }}
         ></span>
       </span>
       <div className="flex flex-col w-full ">
-        <p className="text-left px-2 font-roboto text-gray-900 text-sm">
-          {props.name}
-        </p>
-        <p className="px-2 text-left font-roboto text-gray-900 text-lg">
+        <span className="text-left flex flex-row justify-between items-center px-2 font-roboto text-gray-900 text-lg">
+          <p>{props.name}</p>
+          <p className="text-sm">{props.time}</p>
+        </span>
+        <p className="px-2 text-left font-roboto text-gray-900 text-sm">
           {props.msg}
         </p>
       </div>

@@ -13,8 +13,8 @@ function reducer(state, action) {
   }
 }
 
-const AuthContext = createContext();
-const AuthProvider = ({ children }) => {
+const GlobalContext = createContext();
+const GlobalContextProvider = ({ children }) => {
   const [{ isAuthenticated }, dispatch] = useReducer(reducer, initialState);
 
   function editAuthenticated(type) {
@@ -25,16 +25,16 @@ const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, editAuthenticated }}>
+    <GlobalContext.Provider value={{ isAuthenticated, editAuthenticated }}>
       {children}
-    </AuthContext.Provider>
+    </GlobalContext.Provider>
   );
 };
 function useAuth() {
-  const context = useContext(AuthContext);
+  const context = useContext(GlobalContext);
   if (!context)
-    throw new Error("AuthContext was used outside of its function area");
+    throw new Error("GlobalContext was used outside of its function area");
   return context;
 }
 
-export { useAuth, AuthProvider };
+export { useAuth, GlobalContextProvider };

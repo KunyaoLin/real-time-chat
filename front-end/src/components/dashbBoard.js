@@ -4,8 +4,9 @@ import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ChatPopUp from "./chatPopUp";
 import ContactPopUp from "./contactPopUp";
+import Main from "./main";
 
-function Menu() {
+function Dashboard() {
   return (
     <div
       className="grid grid-cols-[50px_auto] w-full h-full bg-slate-800"
@@ -27,6 +28,7 @@ function Menu() {
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
+              zIndex: "9999",
             }}
           >
             <ChatPopUp />
@@ -37,6 +39,7 @@ function Menu() {
               display: "flex",
               justifyContent: "center",
               alignContent: "center",
+              zIndex: "9999",
             }}
           >
             {/* <MdAccountBox style={{ color: "white", fontSize: "30px" }} /> */}
@@ -96,10 +99,8 @@ function Menu() {
           <SettingsIcon sx={{ color: "white", fontSize: "30px" }} />
         </div>
       </div>
-      <div className=" bg-slate-900 min-h-screen flex flex-col">
-        <div className="bg-white m-1 flex-grow rounded-md"></div>
-      </div>
+      <Main />
     </div>
   );
 }
-export default Menu;
+export default Dashboard;

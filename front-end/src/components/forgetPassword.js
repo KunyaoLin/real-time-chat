@@ -44,32 +44,6 @@ export function ForgetPassword() {
       setSending(false);
       showAlert("error", err.data.response.message);
     }
-
-    // if (data.password === data.passwordConfirmed) {
-    //   try {
-    //     const res = await axios({
-    //       method: "POST",
-    //       url: `${URL}/resetPassword/${token}`,
-    //       data: {
-    //         password: data.password,
-    //         passwordConfirmed: data.passwordConfirmed,
-    //       },
-    //       withCredentials: true,
-    //     });
-    //     if (res.data.status !== "success")
-    //       throw new Error("reset password error");
-    //     e.target.reset();
-    //     showAlert("success", "password reset successfully");
-    //     window.setTimeout(() => {
-    //       window.location.assign("/menu");
-    //     }, 1500);
-    //   } catch (err) {
-    //     console.log(err);
-    //     showAlert("error", err.response.data.message);
-    //   }
-    // } else if (data.password !== data.passwordConfirmed) {
-    //   alert("password not equal to passwordConfirmed");
-    // }
   };
 
   return (

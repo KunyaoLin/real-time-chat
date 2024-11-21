@@ -41,7 +41,7 @@ export function ResetPassword() {
         e.target.reset();
         showAlert("success", "password reset successfully");
         window.setTimeout(() => {
-          window.location.assign("/menu");
+          window.location.assign("/dashboard");
         }, 1500);
       } catch (err) {
         console.log(err);

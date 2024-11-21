@@ -1,42 +1,42 @@
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
 import "../styles.css";
 import MessageInform from "./MessageInform";
 import ChatIcon from "./chatIcon";
 function ChatPopUp() {
-  const [visiable, setVisiable] = useState(false);
-  const [animateout, setAnimateout] = useState(false);
+  // const [visiable, setVisiable] = useState(false);
+  // const [animateout, setAnimateout] = useState(false);
 
-  const popUpRef = useRef(null);
-  const name = "userImg2";
-  const msg = "Hi, how is going today?";
-  const handleAnimate = () => {
-    setAnimateout(true);
-    setTimeout(() => {
-      setAnimateout(false);
-      setVisiable(false);
-    }, 300);
-  };
-  const handlePopUp = () => {
-    if (visiable) {
-      handleAnimate();
-    } else {
-      setVisiable(true);
-    }
-  };
+  // const popUpRef = useRef(null);
+  // const name = "userImg2";
+  // const msg = "Hi, how is going today?";
+  // const handleAnimate = () => {
+  //   setAnimateout(true);
+  //   setTimeout(() => {
+  //     setAnimateout(false);
+  //     setVisiable(false);
+  //   }, 300);
+  // };
+  // const handlePopUp = () => {
+  //   if (visiable) {
+  //     handleAnimate();
+  //   } else {
+  //     setVisiable(true);
+  //   }
+  // };
 
-  useEffect(() => {
-    const handleGlobalPopUp = (e) => {
-      if (popUpRef.current && !popUpRef.current.contains(e.target)) {
-        handleAnimate();
-      }
-    };
+  // useEffect(() => {
+  //   const handleGlobalPopUp = (e) => {
+  //     if (popUpRef.current && !popUpRef.current.contains(e.target)) {
+  //       handleAnimate();
+  //     }
+  //   };
 
-    document.addEventListener("mousedown", handleGlobalPopUp);
-    return () => {
-      document.removeEventListener("mousedown", handleGlobalPopUp);
-    };
-  }, []);
+  //   document.addEventListener("mousedown", handleGlobalPopUp);
+  //   return () => {
+  //     document.removeEventListener("mousedown", handleGlobalPopUp);
+  //   };
+  // }, []);
 
   return (
     <div
@@ -45,7 +45,14 @@ function ChatPopUp() {
         display: "inline-block",
       }}
     >
-      <button onClick={handlePopUp}>
+      <IoChatbubbleEllipsesOutline
+        style={{
+          color: "white",
+          fontSize: "30px",
+          strokeWidth: "0.8",
+        }}
+      />
+      {/* <button onClick={handlePopUp}>
         <IoChatbubbleEllipsesOutline
           style={{
             color: "white",
@@ -53,10 +60,10 @@ function ChatPopUp() {
             strokeWidth: "0.8",
           }}
         />
-      </button>
+      </button> */}
       <MessageInform num={27} />
 
-      {visiable && (
+      {/* {visiable && (
         <div
           className={`popUp ${animateout ? "hidden" : "active"} `}
           ref={popUpRef}
@@ -66,7 +73,7 @@ function ChatPopUp() {
             <ChatIcon name={name} msg={msg} />
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 }

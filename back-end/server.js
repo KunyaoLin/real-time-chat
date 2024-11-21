@@ -46,8 +46,6 @@ io.on("connection", (socket) => {
     console.log("user disconnected");
   });
 });
-// app.use("/login", authController.login);
-// app.use("/signup", authController.signup);
 
 app.use("/", userRoute);
 app.get("/api/auth", authController.isLoggedIn);

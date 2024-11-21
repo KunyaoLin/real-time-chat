@@ -1,29 +1,37 @@
 // import BaseRoom from "./components/baseRoom";
 import Login from "./components/login";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import "./styles.css";
 import Signup from "./components/signup";
 import { ResetPassword } from "./components/resetPassword";
 import { ForgetPassword } from "./components/forgetPassword";
-import Menu from "./components/menu";
+import Dashboard from "./components/dashbBoard";
+import ProtectRoute from "./ult/protectRoute";
+import { GlobalContextProvider } from "./context/globalContext";
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="*" element={<Navigate to="/login" />}></Route>
-        <Route path="/login" element={<Login />}></Route>
-        <Route path="/signup" element={<Signup />}></Route>
-        <Route path="/menu" element={<Menu />}></Route>
-        <Route path="/forgetPassword" element={<ForgetPassword />}></Route>
-
-        <Route path="/resetPassword/:token" element={<ResetPassword />}></Route>
-      </Routes>
-    </Router>
+    <GlobalContextProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="*" element={<Navigate to="/login" />}></Route>
+          <Route path="/login" element={<Login />}></Route>
+          <Route path="/signup" element={<Signup />}></Route>
+          <Route path="/forgetPassword" element={<ForgetPassword />}></Route>
+          <Route
+            path="/resetPassword/:token"
+            element={<ResetPassword />}
+          ></Route>
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectRoute>
+                <Dashboard />
+              </ProtectRoute>
+            }
+          ></Route>
+        </Routes>
+      </BrowserRouter>
+    </GlobalContextProvider>
   );
 }
 
