@@ -2,6 +2,8 @@ const express = require("express");
 const chatRoute = express.Router({ mergeParams: true });
 const chatController = require("../controllers/chatController");
 const authController = require("../controllers/authController");
+chatRoute.use("/", authController.protectTo);
+chatRoute.route("/getChatRecord").get(chatController.getChatRecord);
 
-chatRoute.route("/api/broadcast").post(chatController.sendMessage);
+chatRoute.route("/sendMessage").post(chatController.sendMessage);
 module.exports = chatRoute;

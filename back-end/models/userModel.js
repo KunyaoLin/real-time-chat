@@ -24,6 +24,9 @@ const userSchema = new moongoose.Schema(
       enum: ["regular", "VIP"],
       default: "regular",
     },
+    onlineStatus: {
+      type: Boolean,
+    },
     password: {
       type: String,
       required: [true, "please provide your password"],

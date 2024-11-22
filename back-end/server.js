@@ -48,7 +48,9 @@ io.on("connection", (socket) => {
 });
 
 app.use("/", userRoute);
+app.use("/chat", chatRoute);
 app.get("/api/auth", authController.isLoggedIn);
+
 // app.use("/api/chat", privateRoomRoute);
 
 server.listen(port, () => {

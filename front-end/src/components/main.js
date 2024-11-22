@@ -1,22 +1,23 @@
 import { TextareaAutosize } from "@mui/base/TextareaAutosize";
 import SendIcon from "@mui/icons-material/Send";
 import Button from "@mui/material/Button";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ChatIcon from "./chatIcon";
 import DialogueInChat from "./dialogueInChat";
 
 function Main() {
   const [text, setText] = useState("");
+
   const name = "userImg2";
   const msg = "Hi, how is going today?";
   const time = "12:01";
   const online = true;
   const senderByFri = true;
   const senderByMe = true;
-
   const handleText = (e) => {
     setText(e.target.value);
   };
+
   return (
     <>
       <div
@@ -34,9 +35,9 @@ function Main() {
           }}
         >
           <div
-            className="flex flex-col w-72  overflow-y-scroll "
+            className="flex flex-col w-72 overflow-y-scroll "
             style={{
-              maxHeight: "857px",
+              // maxHeight: "857px",
               height: "auto",
             }}
           >
@@ -44,14 +45,15 @@ function Main() {
             <ChatIcon name={name} msg={msg} />
           </div>
           <div
-            className="flex flex-col"
+            className="flex flex-col w-full"
             style={{
-              width: "100vw",
+              // width: "600px",
+              //mac 100vw
               height: "97vh",
             }}
           >
             <span
-              className="flex p-2 font-bold text-3xl"
+              className="flex p-2 w-full font-bold text-3xl"
               style={{
                 minHeight: "48px",
                 fontFamily: "Roboto",
@@ -75,7 +77,7 @@ function Main() {
               <DialogueInChat senderByFri={false} />
             </div>
             <div
-              className="flex flex-row flex-grow justify-center items-center space-x-1 m-2"
+              className="flex flex-col-2 w-full justify-center items-center space-x-1 m-2"
               style={{
                 maxHeight: "32vh",
                 minHeight: "5vh",
@@ -83,10 +85,12 @@ function Main() {
               }}
             >
               <div
-                className="flex justify-center items-center flex-grow"
+                className="flex justify-end w-full items-center flex-grow"
                 style={{
                   maxHeight: "32vh",
                   minHeight: "10vh",
+                  // maxWidth: "100vw",
+                  // width: "auto",
                   height: "auto",
                 }}
               >
@@ -95,8 +99,10 @@ function Main() {
                   onChange={handleText}
                   minRows={1}
                   maxRows={5}
+                  className="max-w-[60vw] w-full"
                   style={{
-                    width: "1000px",
+                    // maxWidth: "60vw",
+                    // width: "auto",
                     maxHeight: "30vh",
                     overflowY: "auto",
                     backgroundColor: "#F1F5F9",
@@ -110,9 +116,9 @@ function Main() {
                 ></TextareaAutosize>
               </div>
               <div
-                className="flex justify-center items-center flex-grow"
+                className="flex justify-start w-full items-center flex-grow"
                 style={{
-                  width: "100%",
+                  maxWidth: "150px",
                   minHeight: "55px",
                   maxHeight: "150px",
                   height: "auto",

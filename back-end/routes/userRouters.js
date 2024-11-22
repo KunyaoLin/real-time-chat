@@ -1,6 +1,5 @@
 const express = require("express");
 const userController = require("../controllers/userController");
-const chatController = require("../controllers/chatController");
 const authController = require("../controllers/authController");
 const userRoute = express.Router({ mergeParams: true });
 userRoute.route("/login").post(authController.login);

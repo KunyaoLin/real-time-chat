@@ -66,7 +66,12 @@ exports.login = catchAsync(async (req, res, next) => {
   //     message: "welcome to real-chat room",
   //     data: { user },
   //   });
-  const user = await User.findOne({ email }).select("+password");
+  const user = await User.findOneAndUpdate(
+    { email },
+    {
+      onlineStatus: true,
+    }
+  ).select("+password");
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new appError("Incorrect Email and password", 401));
   }
@@ -74,7 +79,19 @@ exports.login = catchAsync(async (req, res, next) => {
 }); //compare the candidatePassword with database'password
 
 //logout
-exports.logout = (req, res, next) => {
+exports.logout = catchAsync(async (req, res, next) => {
+  const user = await User.findOneAndUpdate(
+    {
+      email: req.user.email,
+    },
+    {
+      onlineStatus: false,
+    }
+  );
+  if (!user)
+    return res.status(500).json({
+      message: "logout error",
+    });
   //change cookie expire date to 10 sec
   res.cookie("jwt", "loggedOut", {
     expires: new Date(Date.now() + 10 * 1000),
@@ -83,7 +100,7 @@ exports.logout = (req, res, next) => {
   res.status(200).json({
     status: "logout successfully",
   });
-};
+});
 // protect route&user
 exports.protectTo = catchAsync(async (req, res, next) => {
   //get token
