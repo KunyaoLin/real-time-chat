@@ -56,16 +56,9 @@ exports.signup = catchAsync(async (req, res, next) => {
 //login
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
-  console.log(email, password);
   if (!email && !password)
     return next(new appError("Please provide email and password", 400)); //insure got the user info from req
 
-  //   res.status(200).json({
-  //     status: "success",
-  //     correct: correct,
-  //     message: "welcome to real-chat room",
-  //     data: { user },
-  //   });
   const user = await User.findOneAndUpdate(
     { email },
     {

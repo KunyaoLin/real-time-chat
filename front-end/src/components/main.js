@@ -5,13 +5,9 @@ import React, { useEffect, useState } from "react";
 import ChatIcon from "./chatIcon";
 import DialogueInChat from "./dialogueInChat";
 
-function Main() {
+function Main(props) {
   const [text, setText] = useState("");
-
-  const name = "userImg2";
-  const msg = "Hi, how is going today?";
-  const time = "12:01";
-  const online = true;
+  const name = "user1";
   const senderByFri = true;
   const senderByMe = true;
   const handleText = (e) => {
@@ -41,8 +37,15 @@ function Main() {
               height: "auto",
             }}
           >
-            <ChatIcon name={name} msg={msg} online={online} time={time} />
-            <ChatIcon name={name} msg={msg} />
+            {props.userInfo.data?.allUsers.map((el) => {
+              const { username, avatar } = el;
+
+              return (
+                <ChatIcon key={username} username={username} avatar={avatar} />
+              );
+            })}
+            {/* <ChatIcon name={name} msg={msg} online={online} time={time} />
+            <ChatIcon name={name} msg={msg} /> */}
           </div>
           <div
             className="flex flex-col w-full"

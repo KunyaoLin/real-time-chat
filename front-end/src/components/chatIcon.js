@@ -2,6 +2,7 @@ import React from "react";
 import Avatar from "@mui/material/Avatar";
 
 function ChatIcon(props) {
+  console.log("props.avatar:", props.avatar);
   return (
     <div className="flex bg-slate-100 hover:bg-orange-100 rounded-lg p-1 mt-1 ml-1">
       <span
@@ -10,8 +11,8 @@ function ChatIcon(props) {
         }}
       >
         <Avatar
-          src={`${props.name}.png`}
-          alt={`${props.name}`}
+          src={`${props.avatar}`}
+          alt={`${props.avatar}`}
           sx={{
             fontSize: 10,
           }}
@@ -31,11 +32,11 @@ function ChatIcon(props) {
       </span>
       <div className="flex flex-col w-full ">
         <span className="text-left flex flex-row justify-between items-center px-2 font-roboto text-gray-900 text-lg">
-          <p>{props.name}</p>
-          <p className="text-sm">{props.time}</p>
+          <p>{props.username}</p>
+          {/* <p className="text-sm">{props.time}</p> */}
         </span>
         <p className="px-2 text-left font-roboto text-gray-900 text-sm">
-          {props.msg}
+          {/* {props.msg} */}
         </p>
       </div>
     </div>

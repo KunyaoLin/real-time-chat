@@ -4,7 +4,9 @@ const authController = require("../controllers/authController");
 const userRoute = express.Router({ mergeParams: true });
 userRoute.route("/login").post(authController.login);
 userRoute.route("/signup").post(authController.signup);
-userRoute.route("/logout").get(authController.protectTo, authController.logout);
+userRoute
+  .route("/logout")
+  .post(authController.protectTo, authController.logout);
 userRoute.route("/forgetPassword").post(authController.forgetPassword);
 userRoute.route("/resetPassword/:token").patch(authController.resetPassword);
 

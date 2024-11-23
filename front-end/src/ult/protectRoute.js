@@ -23,8 +23,6 @@ function ProtectRoute({ children }) {
           if (res.data.status === "success") {
             navigate("/dashboard");
             setLoading(false);
-
-            console.log("result", res);
           }
         }
       } catch (err) {

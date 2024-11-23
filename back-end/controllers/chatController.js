@@ -1,4 +1,5 @@
 const ChatHistory = require("../models/chatHistoryModel");
+const User = require("../models/userModel");
 const catchAsync = require("../ults/catchAsync");
 
 exports.sendMessage = catchAsync(async (req, res, next) => {
@@ -71,9 +72,21 @@ exports.getChatRecord = catchAsync(async (req, res) => {
     return res.status(404).json({
       message: "No related chat history found",
     });
-
+  // console.log("users'array:", result);
+  const chatUsersRec = result.map((el) => {
+    const result = el.participants.filter((email) => {
+      return email !== req.user.email;
+    });
+    return result.toString();
+  });
+  const allUsers = await User.find({
+    email: {
+      $in: chatUsersRec,
+    },
+  }).select({ _id: 0 });
   res.status(200).json({
     status: "success",
+    allUsers,
     result,
     message: "All related chat history fetch success",
   });

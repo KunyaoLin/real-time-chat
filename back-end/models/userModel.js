@@ -15,9 +15,13 @@ const userSchema = new moongoose.Schema(
       required: [true, "email is required"],
       validate: [validator.isEmail, "please provide a valid email"],
       unique: true,
+      index: true,
     },
-    avator: {
+    avatar: {
       type: String,
+      // default: "defaultUser",
+      default:
+        "https://media.istockphoto.com/id/1337144146/vector/default-avatar-profile-icon-vector.jpg?s=612x612&w=0&k=20&c=BIbFwuv7FxTWvh5S3vB6bkT0Qv8Vn8N5Ffseq84ClGI=",
     },
     role: {
       type: String,
@@ -26,6 +30,8 @@ const userSchema = new moongoose.Schema(
     },
     onlineStatus: {
       type: Boolean,
+      required: true,
+      default: false,
     },
     password: {
       type: String,

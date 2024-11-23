@@ -11,9 +11,9 @@ import { GlobalContextProvider } from "./context/globalContext";
 function App() {
   return (
     <GlobalContextProvider>
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true }}>
         <Routes>
-          <Route path="*" element={<Navigate to="/login" />}></Route>
+          <Route path="*" element={<Navigate to="/login" replace />}></Route>
           <Route path="/login" element={<Login />}></Route>
           <Route path="/signup" element={<Signup />}></Route>
           <Route path="/forgetPassword" element={<ForgetPassword />}></Route>

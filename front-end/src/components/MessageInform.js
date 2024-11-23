@@ -11,8 +11,6 @@ function MessageInform(props) {
     };
     num();
   }, [props.num]);
-  console.log("num", props.num);
-  console.log("number", number);
 
   return (
     <span

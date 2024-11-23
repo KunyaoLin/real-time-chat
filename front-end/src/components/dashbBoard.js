@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { FaRegBell } from "react-icons/fa";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import SettingsIcon from "@mui/icons-material/Settings";
@@ -10,10 +10,12 @@ import Main from "./main";
 const URL = process.env.REACT_APP_SERVER_URL;
 
 function Dashboard() {
+  const [userInfo, setUserInfo] = useState([]);
   // useEffect(() => {
   //   const getOnline
   // }, []);
   useEffect(() => {
+    // setUserInfo("");
     let isCancel = false;
     async function getAllChatRecord() {
       try {
@@ -22,8 +24,11 @@ function Dashboard() {
           url: `${URL}/chat/getChatRecord`,
           withCredentials: true,
         });
-        console.log(res);
+        if (res) {
+          setUserInfo(res);
+        }
       } catch (err) {
+        setUserInfo([]);
         console.log("error", err);
       }
       // if (!isCancel) setTimeout(getAllChatRecord, 5000); //loop data for every 5s
@@ -35,6 +40,8 @@ function Dashboard() {
       isCancel = true;
     };
   }, []);
+  console.log("userInfo:", userInfo);
+
   return (
     <div
       className="grid grid-cols-[50px_auto] w-full h-full bg-slate-800"
@@ -127,7 +134,7 @@ function Dashboard() {
           <SettingsIcon sx={{ color: "white", fontSize: "30px" }} />
         </div>
       </div>
-      <Main />
+      <Main userInfo={userInfo} />
     </div>
   );
 }
