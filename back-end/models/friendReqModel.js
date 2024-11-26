@@ -3,13 +3,13 @@ const FriendReqSchema = new mongoose.Schema(
   {
     senderEmail: {
       type: String,
-      ref: "User",
+      // ref: "User",
       required: [true, "Friend request need an sender"],
       match: [/^\S+@\S+\.\S+$/, "Please enter a valid sender email address"],
     },
     receiverEmail: {
       type: String,
-      ref: "User",
+      // ref: "User",
       required: [true, "Need a receiver Email address"],
       match: [/^\S+@\S+\.\S+$/, "Please enter a valid receiver email address"],
     },

@@ -25,7 +25,6 @@ function ContactPopUp() {
       setVisiable(true);
     }
   };
-
   useEffect(() => {
     const handleGlobalPopUp = (e) => {
       if (popUpRef.current && !popUpRef.current.contains(e.target)) {

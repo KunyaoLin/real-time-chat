@@ -2,10 +2,9 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 
 const ChatHistorySchema = new mongoose.Schema({
-  participants: {
-    type: [String],
-    required: true,
-  },
+  participants: [
+    { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  ],
   messages: [
     {
       senderEmail: {

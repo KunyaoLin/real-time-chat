@@ -1,47 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { FaRegBell } from "react-icons/fa";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ChatPopUp from "./chatPopUp";
-import axios from "axios";
 
 import ContactPopUp from "./contactPopUp";
 import Main from "./main";
-const URL = process.env.REACT_APP_SERVER_URL;
 
 function Dashboard() {
-  const [userInfo, setUserInfo] = useState([]);
-  // useEffect(() => {
-  //   const getOnline
-  // }, []);
-  useEffect(() => {
-    // setUserInfo("");
-    let isCancel = false;
-    async function getAllChatRecord() {
-      try {
-        const res = await axios({
-          method: "GET",
-          url: `${URL}/chat/getChatRecord`,
-          withCredentials: true,
-        });
-        if (res) {
-          setUserInfo(res);
-        }
-      } catch (err) {
-        setUserInfo([]);
-        console.log("error", err);
-      }
-      // if (!isCancel) setTimeout(getAllChatRecord, 5000); //loop data for every 5s
-    }
-
-    getAllChatRecord();
-
-    return () => {
-      isCancel = true;
-    };
-  }, []);
-  console.log("userInfo:", userInfo);
-
   return (
     <div
       className="grid grid-cols-[50px_auto] w-full h-full bg-slate-800"
@@ -77,7 +43,6 @@ function Dashboard() {
               zIndex: "9999",
             }}
           >
-            {/* <MdAccountBox style={{ color: "white", fontSize: "30px" }} /> */}
             <ContactPopUp />
           </div>
           <div
@@ -134,7 +99,7 @@ function Dashboard() {
           <SettingsIcon sx={{ color: "white", fontSize: "30px" }} />
         </div>
       </div>
-      <Main userInfo={userInfo} />
+      <Main />
     </div>
   );
 }
