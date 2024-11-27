@@ -1,17 +1,17 @@
 import { Avatar, Box, Typography } from "@mui/material";
 import React from "react";
-function DialogueInChat(props) {
-  const name = "userImg2";
-
+function DialogueInChat({ dialogues, currentFriInfo, currentUserInfo }) {
+  const sender = dialogues.senderEmail;
+  const friendEmail = currentFriInfo.email;
   return (
     <>
-      {props.senderByFri ? (
+      {sender === friendEmail ? (
         <div className="flex flex-row p-2">
           <span>
             <Avatar
-              //   src={`${props.name}.png`}
-              src={`${name}.png`}
-              alt={`${props.name}`}
+              // src={`${props.name}.png`}
+              src={`${currentFriInfo.avatar}`}
+              alt={`${currentFriInfo.username}`}
               sx={{
                 fontSize: 10,
               }}
@@ -23,28 +23,20 @@ function DialogueInChat(props) {
               minWidth: "50px",
               minHeight: "40px",
               padding: "10px",
-              backgroundColor: props.isSender ? "#4caf50" : "#e0e0e0",
-              color: props.isSender ? "white" : "black",
+              backgroundColor: sender === friendEmail ? "#e0e0e0" : "#4caf50",
+              color: sender === friendEmail ? "white" : "black",
               borderRadius: "15px",
-              alignSelf: props.isSender ? "flex-end" : "flex-start",
+              alignSelf: sender === friendEmail ? "flex-end" : "flex-start",
               marginBottom: "10px",
             }}
           >
-            <Typography variant="body1">
-              亲爱的朋友：
-              您好！无论您正在经历怎样的一天，我都希望这封问候能为您带来一丝温暖与喜悦。在这个快节奏的时代，每个人都在追逐自己的梦想与目标，但别忘了偶尔停下脚步，感受身边的小美好。清晨的一缕阳光，午后的一杯咖啡，或是傍晚时分的一抹晚霞，都能让忙碌的心灵得到片刻的宁静。
-              生活中难免会遇到挑战和挫折，但请相信，风雨之后总会有彩虹。那些艰难的时刻，或许正是成就未来的关键。请记住，无论何时何地，总会有家人、朋友或同事在默默支持着您。也许一个简单的微笑、一次真诚的对话，都会让一天变得不再平凡。
-              希望您在未来的日子里，能保持一颗乐观而坚定的心。愿您拥有无限的勇气去追逐梦想，也不忘享受沿途的风景！
-              祝您一切顺利，平安喜乐！ 亲爱的朋友：
-              您好！无论您正在经历怎样的一天，我都希望这封问候能为您带来一丝温暖与喜悦。在这个快节奏的时代，每个人都在追逐自己的梦想与目标，但别忘了偶尔停下脚步，感受身边的小美好。清晨的一缕阳光，午后的一杯咖啡，或是傍晚时分的一抹晚霞，都能让忙碌的心灵得到片刻的宁静。
-              生活中难免会遇到挑战和挫折，但请相信，风雨之后总会有彩虹。那些艰难的时刻，或许正是成就未来的关键。请记住，无论何时何地，总会有家人、朋友或同事在默默支持着您。也许一个简单的微笑、一次真诚的对话，都会让一天变得不再平凡。
-              希望您在未来的日子里，能保持一颗乐观而坚定的心。愿您拥有无限的勇气去追逐梦想，也不忘享受沿途的风景！
-              祝您一切顺利，平安喜乐！ 亲爱的朋友：
-              您好！无论您正在经历怎样的一天，我都希望这封问候能为您带来一丝温暖与喜悦。在这个快节奏的时代，每个人都在追逐自己的梦想与目标，但别忘了偶尔停下脚步，感受身边的小美好。清晨的一缕阳光，午后的一杯咖啡，或是傍晚时分的一抹晚霞，都能让忙碌的心灵得到片刻的宁静。
-              生活中难免会遇到挑战和挫折，但请相信，风雨之后总会有彩虹。那些艰难的时刻，或许正是成就未来的关键。请记住，无论何时何地，总会有家人、朋友或同事在默默支持着您。也许一个简单的微笑、一次真诚的对话，都会让一天变得不再平凡。
-              希望您在未来的日子里，能保持一颗乐观而坚定的心。愿您拥有无限的勇气去追逐梦想，也不忘享受沿途的风景！
-              祝您一切顺利，平安喜乐！
-              {/* {props.message} */}
+            <Typography
+              variant="body1"
+              sx={{
+                color: sender === friendEmail ? "black" : "white",
+              }}
+            >
+              {dialogues.message}
             </Typography>
           </Box>
         </div>
@@ -56,35 +48,20 @@ function DialogueInChat(props) {
               minWidth: "50px",
               minHeight: "40px",
               padding: "10px",
-              backgroundColor: props.isSender ? "#4caf50" : "#e0e0e0",
-              color: props.isSender ? "white" : "black",
+              backgroundColor: sender === friendEmail ? "#e0e0e0" : "#4caf50",
+              color: sender === friendEmail ? "white" : "black",
               borderRadius: "15px",
-              alignSelf: props.isSender ? "flex-end" : "flex-start",
+              alignSelf: sender === friendEmail ? "flex-end" : "flex-start",
               marginBottom: "10px",
             }}
           >
-            <Typography variant="body1">
-              亲爱的朋友：
-              您好！无论您正在经历怎样的一天，我都希望这封问候能为您带来一丝温暖与喜悦。在这个快节奏的时代，每个人都在追逐自己的梦想与目标，但别忘了偶尔停下脚步，感受身边的小美好。清晨的一缕阳光，午后的一杯咖啡，或是傍晚时分的一抹晚霞，都能让忙碌的心灵得到片刻的宁静。
-              生活中难免会遇到挑战和挫折，但请相信，风雨之后总会有彩虹。那些艰难的时刻，或许正是成就未来的关键。请记住，无论何时何地，总会有家人、朋友或同事在默默支持着您。也许一个简单的微笑、一次真诚的对话，都会让一天变得不再平凡。
-              希望您在未来的日子里，能保持一颗乐观而坚定的心。愿您拥有无限的勇气去追逐梦想，也不忘享受沿途的风景！
-              祝您一切顺利，平安喜乐！ 亲爱的朋友：
-              您好！无论您正在经历怎样的一天，我都希望这封问候能为您带来一丝温暖与喜悦。在这个快节奏的时代，每个人都在追逐自己的梦想与目标，但别忘了偶尔停下脚步，感受身边的小美好。清晨的一缕阳光，午后的一杯咖啡，或是傍晚时分的一抹晚霞，都能让忙碌的心灵得到片刻的宁静。
-              生活中难免会遇到挑战和挫折，但请相信，风雨之后总会有彩虹。那些艰难的时刻，或许正是成就未来的关键。请记住，无论何时何地，总会有家人、朋友或同事在默默支持着您。也许一个简单的微笑、一次真诚的对话，都会让一天变得不再平凡。
-              希望您在未来的日子里，能保持一颗乐观而坚定的心。愿您拥有无限的勇气去追逐梦想，也不忘享受沿途的风景！
-              祝您一切顺利，平安喜乐！ 亲爱的朋友：
-              您好！无论您正在经历怎样的一天，我都希望这封问候能为您带来一丝温暖与喜悦。在这个快节奏的时代，每个人都在追逐自己的梦想与目标，但别忘了偶尔停下脚步，感受身边的小美好。清晨的一缕阳光，午后的一杯咖啡，或是傍晚时分的一抹晚霞，都能让忙碌的心灵得到片刻的宁静。
-              生活中难免会遇到挑战和挫折，但请相信，风雨之后总会有彩虹。那些艰难的时刻，或许正是成就未来的关键。请记住，无论何时何地，总会有家人、朋友或同事在默默支持着您。也许一个简单的微笑、一次真诚的对话，都会让一天变得不再平凡。
-              希望您在未来的日子里，能保持一颗乐观而坚定的心。愿您拥有无限的勇气去追逐梦想，也不忘享受沿途的风景！
-              祝您一切顺利，平安喜乐！
-              {/* {props.message} */}
-            </Typography>
+            <Typography variant="body1">{dialogues.message}</Typography>
           </Box>
           <span>
             <Avatar
               //   src={`${props.name}.png`}
-              src={`${name}.png`}
-              alt={`${props.name}`}
+              src={currentUserInfo[1]}
+              alt={currentUserInfo[0]}
               sx={{
                 fontSize: 10,
               }}

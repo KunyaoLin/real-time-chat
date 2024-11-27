@@ -1,13 +1,55 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FaRegBell } from "react-icons/fa";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ChatPopUp from "./chatPopUp";
+import { io } from "socket.io-client";
 
 import ContactPopUp from "./contactPopUp";
 import Main from "./main";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { showAlert } from "../ult/alert";
+const URL = process.env.REACT_APP_SERVER_URL;
 
 function Dashboard() {
+  const [socket, setSocket] = useState("");
+  const navigate = useNavigate();
+
+  const hanldeExit = async () => {
+    const response = await axios({
+      method: "POST",
+      url: `${URL}/logout`,
+      withCredentials: true,
+    });
+    if (response.data.status === "logout successfully")
+      showAlert("success", "logout successfully");
+    setTimeout(() => {
+      navigate("/login");
+    }, 1500);
+  };
+  useEffect(() => {
+    function ConnectIo() {
+      try {
+        socket = io(`${URL}`, {
+          transports: ["websocket"],
+        });
+        setSocket(socket);
+        socket.on("connect", () => {
+          console.log("connected to server with ID ", socket.id);
+        });
+      } catch (err) {
+        console.log(err);
+      }
+    }
+    ConnectIo();
+    return () => {
+      if (socket) {
+        socket.off("connect");
+        socket.disconnect();
+      }
+    };
+  }, []);
   return (
     <div
       className="grid grid-cols-[50px_auto] w-full h-full bg-slate-800"
@@ -89,17 +131,19 @@ function Dashboard() {
             gap: "30px",
           }}
         >
-          <ExitToAppIcon
-            sx={{
-              color: "white",
-              fontSize: "30px",
-            }}
-          />
+          <button onClick={hanldeExit}>
+            <ExitToAppIcon
+              sx={{
+                color: "white",
+                fontSize: "30px",
+              }}
+            />
+          </button>
 
           <SettingsIcon sx={{ color: "white", fontSize: "30px" }} />
         </div>
       </div>
-      <Main />
+      <Main socket={socket} />
     </div>
   );
 }

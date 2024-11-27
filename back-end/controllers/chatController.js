@@ -75,6 +75,8 @@ exports.getMessages = (req, res, next) => {
 };
 exports.getChatRecord = catchAsync(async (req, res) => {
   const loginUserEmail = req.user.email;
+  const loginUserAvatar = req.user.avatar;
+  const loginUserInfo = [loginUserEmail, loginUserAvatar];
   const results = await ChatHistory.find({
     participants: {
       $in: [req.user._id],
@@ -90,7 +92,7 @@ exports.getChatRecord = catchAsync(async (req, res) => {
   res.status(200).json({
     status: "success",
     // allUsers,
-    loginUserEmail,
+    loginUserInfo,
     results,
     message: "All related chat history fetch success",
   });
