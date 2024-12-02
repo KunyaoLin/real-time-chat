@@ -42,6 +42,7 @@ function Main({ socket }) {
         timeStamp: Date.now(),
         isRead: false,
       };
+      console.log(message);
       setAllMessageRec((premessage) => [...premessage, message]);
 
       socket.emit("send_Message", message);
@@ -52,6 +53,7 @@ function Main({ socket }) {
   };
 
   useEffect(() => {
+    //get chat history from database
     let isCancel = false;
     async function getAllChatRecord() {
       try {
@@ -76,9 +78,20 @@ function Main({ socket }) {
       isCancel = true;
     };
   }, []);
-  console.log("allMessageRec", allMessageRec);
-  console.log("currentUserInfo", currentUserInfo);
-  console.log("currentFriInfo", currentFriInfo);
+  useEffect(() => {
+    if (!socket) return;
+    const handleMessage = (message) => {
+      setAllMessageRec((premessage) => [...premessage, message]);
+    };
+    socket.on("receive-message", handleMessage);
+
+    return () => {
+      socket.off("receive-message", handleMessage);
+    };
+  }, [socket]);
+  // console.log("allMessageRec", allMessageRec);
+  // console.log("currentUserInfo", currentUserInfo);
+  // console.log("currentFriInfo", currentFriInfo);
   return (
     <>
       <div
@@ -91,9 +104,10 @@ function Main({ socket }) {
         <div
           className="bg-white m-2 p-2 flex flex-row rounded-lg"
           style={{
-            height: "700px",
+            // height: "510px",
+            height: "1400px",
             maxWidth: "calc(100% - 32px)",
-            overflow: "hidden",
+            // overflow: "hidden",
           }}
         >
           <div
@@ -154,7 +168,10 @@ function Main({ socket }) {
             <div
               className="flex flex-col w-full"
               style={{
-                height: "680px",
+                height: "450px",
+                // height: "100%",
+
+                overflow: "hidden",
               }}
             >
               <span
@@ -174,7 +191,8 @@ function Main({ socket }) {
                   // minHeight: "60vh",
                   overflowY: "auto",
                   paddingBottom: "10px",
-                  height: "1300px",
+                  // height: "auto",
+                  height: "750px",
                 }}
               >
                 {allMessageRec.map((el) => {
@@ -189,12 +207,14 @@ function Main({ socket }) {
                   );
                 })}
               </div>
-              <div
-                className="flex flex-col-2 justify-center items-center space-x-1 m-2"
+
+              <form
+                className="flex flex-col-2 justify-center items-start space-x-1 m-2"
                 style={{
                   width: "100%",
                   height: "100%",
                 }}
+                onSubmit={handleSubmitMessage}
               >
                 <div
                   className="flex justify-end w-full items-center flex-grow"
@@ -206,8 +226,10 @@ function Main({ socket }) {
                   }}
                 >
                   <TextareaAutosize
+                    type="submit"
                     value={inputMessage}
                     onChange={handleInput}
+                    // onSubmit={handleSubmitMessage}
                     minRows={1}
                     maxRows={5}
                     className="max-w-[60vw] w-full"
@@ -234,11 +256,15 @@ function Main({ socket }) {
                   }}
                 >
                   {" "}
-                  <Button variant="contained" endIcon={<SendIcon />}>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    endIcon={<SendIcon />}
+                  >
                     SEND
                   </Button>
                 </div>
-              </div>
+              </form>
             </div>
           ) : (
             <div>111</div>

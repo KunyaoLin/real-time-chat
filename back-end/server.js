@@ -1,6 +1,6 @@
 //hello world
 const authController = require("./controllers/authController");
-const privateRoomRoute = require("./routes/privateChatRouters");
+// const privateRoomRoute = require("./routes/privateChatRouters");
 const userRoute = require("./routes/userRouters");
 const dotenv = require("dotenv");
 const express = require("express");
@@ -11,8 +11,10 @@ const app = express();
 const http = require("http");
 const mongoose = require("mongoose");
 const chatRoute = require("./routes/chatRouters");
-const { send } = require("process");
+// const { send } = require("process");
 const ChatHistory = require("./models/chatHistoryModel");
+const Friends = require("./models/friendsModel");
+const User = require("./models/userModel");
 dotenv.config({ path: "./config.env" });
 const DB_URL = process.env.DATABASE_URL.replace(
   "<db_password>",
@@ -29,7 +31,10 @@ const port = process.env.PORT || 3001;
 const onlineUsers = new Map();
 const io = new Server(server, {
   cors: {
-    origin: `${process.env.FRONT_END_URL}`,
+    origin: [
+      `${process.env.FRONT_END_URL}/dashboard`,
+      `${process.env.FRONT_END_URL}`,
+    ],
     methods: ["GET", "POST"],
   },
 });
@@ -39,11 +44,13 @@ app.use(express.static("public"));
 app.use(cookieParser());
 // require("dotenv").config({ path: "./config.env" });
 io.on("connection", (socket) => {
-  console.log("one user connected ", socket.id);
   socket.on("add_Onlineuser", (userId) => {
-    onlineUsers.set(userId, socket.id);
+    if (!onlineUsers.has(userId)) {
+      onlineUsers.set(userId, []);
+    } //这里的问题试试看 还有断开连接的时候
+    onlineUsers.get(userId).push(socket.id);
   });
-  //检查发送对象是否在线，在线就在线发送消息
+  console.log("onlineUsers", onlineUsers);
   socket.on("send_Message", async (message) => {
     try {
       const receiverSocketId = onlineUsers.get(message.receiverEmail);
@@ -77,9 +84,8 @@ io.on("connection", (socket) => {
               },
             },
           },
-          { new: true }
+          { new: true, upsert: true }
         );
-        console.log("result:", result);
         if (!result) {
           const newChat = await ChatHistory.create({
             participants: [senderInfo[0]._id, friendInfo[0]._id],
@@ -93,11 +99,7 @@ io.on("connection", (socket) => {
           });
           console.log(newChat);
         }
-        //假设我添加进去信息到数据库，那么我的消息另外一方是否会出现两次消息出现？考虑下
-        io.to(receicedId).emit("receive-message", {
-          senderId,
-          message,
-        });
+        io.to(receiverSocketId).emit("receive-message", message);
         socket.emit("message-sent", {
           success: true,
         });
@@ -108,13 +110,39 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("disconnect", () => {
-    console.log("user disconnected");
-    const userId = onlineUsers.get(socket.id);
-    if (userId) {
-      onlineUsers.delete(userId);
-      onlineUsers.delete(socket.id);
+  socket.on("user_disconnected", () => {
+    //删除对应的socket.id 同时在退出的时候也要使用这个socket来发送userId
+
+    for (const [userId, sockets] of onlineUsers.entries()) {
+      const updateSockets = sockets.filter((id) => id !== socket.id);
+      if (updateSockets.length > 0) {
+        onlineUsers.set(userId, updateSockets);
+        console.log("onlineUsersleft:", Array.from(onlineUsers.entries()));
+      } else {
+        onlineUsers.delete(userId);
+        console.log(`${userId} logout`);
+        console.log("onlineUsersleft:", Array.from(onlineUsers.entries()));
+      }
     }
+
+    console.log(`${socket.id} logout`);
+
+    // const userId = onlineUsers.get(socket.id);
+  });
+  socket.on("disconnect", () => {
+    for (const [userId, sockets] of onlineUsers.entries()) {
+      const updateSockets = sockets.filter((id) => id !== socket.id);
+      if (updateSockets.length > 0) {
+        onlineUsers.set(userId, updateSockets);
+        console.log("onlineUsersleft:", Array.from(onlineUsers.entries()));
+      } else {
+        onlineUsers.delete(userId);
+        // console.log(`${userId} logout`);
+        console.log("onlineUsersleft:", Array.from(onlineUsers.entries()));
+      }
+    }
+
+    // console.log(`${socket.id} logout`);
   });
 });
 

@@ -47,7 +47,7 @@ function Login() {
         setEmail("");
         setPassword("");
         window.setTimeout(() => {
-          window.location.assign("/dashboard");
+          navigate("/dashboard");
         }, 1500);
       }
     } catch (err) {

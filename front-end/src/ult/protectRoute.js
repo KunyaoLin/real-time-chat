@@ -19,17 +19,17 @@ function ProtectRoute({ children }) {
           url: `${URL}/api/auth`,
           withCredentials: true,
         });
-        if (isMounted) {
-          if (res.data.status === "success") {
-            navigate("/dashboard");
-            setLoading(false);
-          }
+        if (isMounted && res.data.status === "success") {
+          navigate("/dashboard");
         }
       } catch (err) {
         if (isMounted) {
           console.log(err);
-          setLoading(false);
           navigate("/login");
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
         }
       }
     }
@@ -38,7 +38,7 @@ function ProtectRoute({ children }) {
       isMounted = false;
     };
   }, [navigate]);
-  if (loading)
+  if (loading) {
     return (
       <div className=" flex justify-center items-center w-screen h-screen">
         <PiSpinnerGapBold
@@ -49,6 +49,8 @@ function ProtectRoute({ children }) {
         />
       </div>
     );
+  }
+
   return children;
 }
 export default ProtectRoute;

@@ -141,18 +141,32 @@ exports.isLoggedIn = catchAsync(async (req, res, next) => {
       })
     );
   }
-  jwt.verify(token, process.env.JWT_SECRECT_KEY, (err, decode) => {
+  jwt.verify(token, process.env.JWT_SECRECT_KEY, async (err, decode) => {
     if (err)
       res.status(403).json({
         status: "error",
         message: "Invalid token",
       });
-
-    res.status(200).json({
-      status: "success",
-      message: "Authenticated",
-      user: decode,
-    });
+    try {
+      const { userId } = decode;
+      const currentUser = await User.findById(userId);
+      if (!currentUser)
+        return res.status(404).json({
+          status: "error",
+          message: "User not found",
+        });
+      res.status(200).json({
+        status: "success",
+        message: "Authenticated",
+        userEmail: currentUser.email,
+        user: decode,
+      });
+    } catch (err) {
+      res.status(500).json({
+        status: "error",
+        message: "Something went wrong",
+      });
+    }
   });
 });
 //forget password
