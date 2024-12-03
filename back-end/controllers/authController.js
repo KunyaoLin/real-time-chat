@@ -134,16 +134,14 @@ exports.restrictTo = (req, res, next) => {
 exports.isLoggedIn = catchAsync(async (req, res, next) => {
   const token = req.cookies.jwt;
   if (!token) {
-    return next(
-      res.status(401).json({
-        status: "error",
-        message: "Not authenicated, Please login in your account",
-      })
-    );
+    return res.status(401).json({
+      status: "error",
+      message: "Not authenicated, Please login in your account",
+    });
   }
   jwt.verify(token, process.env.JWT_SECRECT_KEY, async (err, decode) => {
     if (err)
-      res.status(403).json({
+      return res.status(403).json({
         status: "error",
         message: "Invalid token",
       });
@@ -155,7 +153,7 @@ exports.isLoggedIn = catchAsync(async (req, res, next) => {
           status: "error",
           message: "User not found",
         });
-      res.status(200).json({
+      return res.status(200).json({
         status: "success",
         message: "Authenticated",
         userEmail: currentUser.email,

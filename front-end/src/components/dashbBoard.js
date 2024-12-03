@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { showAlert } from "../ult/alert";
 const URL = process.env.REACT_APP_SERVER_URL;
 let newSocket;
+
 function Dashboard() {
   const [socket, setSocket] = useState("");
   const [userData, setUserData] = useState("");
@@ -18,7 +19,7 @@ function Dashboard() {
 
   const navigate = useNavigate();
 
-  const hanldeExit = async () => {
+  const handleExit = async () => {
     const response = await axios({
       method: "POST",
       url: `${URL}/logout`,
@@ -27,10 +28,10 @@ function Dashboard() {
     if (response.data.status === "logout successfully") {
       showAlert("success", "logout successfully");
       console.log("socket", socket);
-      if (socket) {
+      if (newSocket) {
         console.log("logout rn1");
-        // socket.emit("user_disconnected");
-        socket.disconnect();
+        newSocket.disconnect();
+        setSocket(null);
       }
       setTimeout(() => {
         console.log("logout rn2");
@@ -53,22 +54,21 @@ function Dashboard() {
           withCredentials: true,
         });
         const userEmail = res.data.userEmail;
+        setUserData(userEmail);
 
         console.log("socket", socket);
         console.log("newSocket", newSocket);
-        setSocket(newSocket);
 
         if (res.data.status === "success" && !socket) {
           if (!newSocket) {
-            setUserData(userEmail);
-
             newSocket = io(`${URL}`, {
               transports: ["websocket"],
             });
+            setSocket(newSocket);
 
             newSocket.on("connect", () => {
               console.log("connected to server with ID ", newSocket.id);
-              newSocket.emit("add_Onlineuser", userEmail);
+              newSocket.emit("addOnlineuser", userEmail);
               console.log("userEmail", userEmail);
 
               // console.log("email:", res.data.user.userEmail);
@@ -82,11 +82,15 @@ function Dashboard() {
     ConnectIo();
     return () => {
       if (newSocket) {
+        console.log("newSocket disconnect");
         newSocket.off("connect");
+        newSocket.off("disconnect");
         newSocket.disconnect();
+        setSocket(null);
+        newSocket = null;
       }
     };
-  }, [socket]);
+  }, []);
   return (
     <div
       className="grid grid-cols-[50px_auto] w-full h-full bg-slate-800"
@@ -168,7 +172,7 @@ function Dashboard() {
             gap: "30px",
           }}
         >
-          <button onClick={hanldeExit}>
+          <button onClick={handleExit}>
             <ExitToAppIcon
               sx={{
                 color: "white",
@@ -180,9 +184,7 @@ function Dashboard() {
           <SettingsIcon sx={{ color: "white", fontSize: "30px" }} />
         </div>
       </div>
-      <Main
-      // socket={socket}
-      />
+      <Main newSocket={newSocket} />
     </div>
   );
 }

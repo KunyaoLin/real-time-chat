@@ -8,32 +8,31 @@ import DialogueInChat from "./dialogueInChat";
 import { ObjectId } from "bson";
 const URL = process.env.REACT_APP_SERVER_URL;
 
-function Main({ socket }) {
+function Main({ newSocket }) {
   const [inputMessage, setInputMessage] = useState("");
 
   const [allUserRec, setAllUserRec] = useState([]);
-  const [allMessageRec, setAllMessageRec] = useState({});
+  const [allMessageRec, setAllMessageRec] = useState([]);
   const [openChat, setOpenChat] = useState(false);
   const [currentFriInfo, setCurrentFriInfo] = useState("");
   const [currentUserInfo, setCurrentUserInfo] = useState("");
   const handleInput = (e) => {
     setInputMessage(e.target.value);
   };
-  const handleChatClick = (info, allMessageRec) => {
+  const handleChatClick = (info, allMessages) => {
     console.log("info", info);
     if (currentFriInfo && currentFriInfo.email === info.email) {
       return;
     }
     setCurrentFriInfo(info);
-    setAllMessageRec(allMessageRec);
+    setAllMessageRec(allMessages);
     setOpenChat(true);
   };
+  //submit message
   const handleSubmitMessage = (e) => {
     e.preventDefault();
 
     if (inputMessage.trim() !== "") {
-      // const senderId = currentUserInfo[0];
-      // const receicedId = currentFriInfo.email;
       const message = {
         message: inputMessage,
         senderEmail: `${currentUserInfo[0]}`,
@@ -45,15 +44,12 @@ function Main({ socket }) {
       console.log(message);
       setAllMessageRec((premessage) => [...premessage, message]);
 
-      socket.emit("send_Message", message);
-      // setshowMessage((premessage) => [...premessage, message]);
+      newSocket.emit("send_Message", message);
 
       setInputMessage("");
     }
   };
-
   useEffect(() => {
-    //get chat history from database
     let isCancel = false;
     async function getAllChatRecord() {
       try {
@@ -63,7 +59,8 @@ function Main({ socket }) {
           withCredentials: true,
         });
         if (!isCancel && res && res.data) {
-          setAllUserRec(res.data);
+          setAllUserRec(res.data.results);
+          console.log("res:", res);
           setCurrentUserInfo(res.data.loginUserInfo);
         }
       } catch (err) {
@@ -79,19 +76,19 @@ function Main({ socket }) {
     };
   }, []);
   useEffect(() => {
-    if (!socket) return;
+    let isMount = true;
+    if (!newSocket || !isMount) return;
     const handleMessage = (message) => {
       setAllMessageRec((premessage) => [...premessage, message]);
     };
-    socket.on("receive-message", handleMessage);
+    newSocket.on("receive-message", handleMessage);
 
     return () => {
-      socket.off("receive-message", handleMessage);
+      isMount = false;
+      newSocket.off("receive-message", handleMessage);
     };
-  }, [socket]);
-  // console.log("allMessageRec", allMessageRec);
-  // console.log("currentUserInfo", currentUserInfo);
-  // console.log("currentFriInfo", currentFriInfo);
+  }, [newSocket]);
+
   return (
     <>
       <div
@@ -104,25 +101,22 @@ function Main({ socket }) {
         <div
           className="bg-white m-2 p-2 flex flex-row rounded-lg"
           style={{
-            // height: "510px",
             height: "1400px",
             maxWidth: "calc(100% - 32px)",
-            // overflow: "hidden",
           }}
         >
           <div
             className="flex flex-col w-72 overflow-y-scroll "
             style={{
-              // maxHeight: "857px",
               width: "200px",
               height: "500px",
               flexShrink: 0,
             }}
           >
-            {allUserRec?.results?.length > 0 ? (
-              allUserRec.results.map((el) => {
-                const allMessageRec = el.messages;
-                const message = allMessageRec[allMessageRec.length - 1];
+            {allUserRec?.length > 0 ? (
+              allUserRec.map((el) => {
+                const allMessages = el.messages;
+                const lastMessage = allMessages[allMessages.length - 1];
                 const lastNum = el.messages.length - 1;
                 const hours = new Date(
                   el.messages[lastNum].timeStamp
@@ -134,24 +128,18 @@ function Main({ socket }) {
                   mins < 10 ? "0" + mins.toString() : mins
                 }`;
                 const friendInfo = el.participants.filter((t) => {
-                  return t.email !== allUserRec.loginUserInfo[0];
+                  return t.email !== currentUserInfo[0];
                 });
-                // console.log("friendInfo:", friendInfo);
                 return (
                   <button
-                    onClick={() =>
-                      handleChatClick(friendInfo[0], allMessageRec)
-                    }
+                    onClick={() => handleChatClick(friendInfo[0], allMessages)}
                     key={friendInfo[0].username}
                   >
                     <ChatIcon
                       friendInfo={friendInfo[0]}
                       key={friendInfo[0].username}
-                      message={message.message}
+                      message={lastMessage.message}
                       time={time}
-                      onClick={() => {
-                        handleChatClick(friendInfo[0], allMessageRec);
-                      }}
                       style={{
                         width: "270px",
                         height: "56px",
@@ -180,7 +168,6 @@ function Main({ socket }) {
                   minHeight: "48px",
                   fontFamily: "Roboto",
                 }}
-                // key={currentFriInfo.username}
               >
                 {currentFriInfo.username}
               </span>
@@ -188,10 +175,8 @@ function Main({ socket }) {
                 className="flex flex-col flex-grow"
                 style={{
                   overflow: "hidden",
-                  // minHeight: "60vh",
                   overflowY: "auto",
                   paddingBottom: "10px",
-                  // height: "auto",
                   height: "750px",
                 }}
               >
@@ -229,7 +214,6 @@ function Main({ socket }) {
                     type="submit"
                     value={inputMessage}
                     onChange={handleInput}
-                    // onSubmit={handleSubmitMessage}
                     minRows={1}
                     maxRows={5}
                     className="max-w-[60vw] w-full"
