@@ -16,11 +16,12 @@ function Main({ newSocket }) {
   const [openChat, setOpenChat] = useState(false);
   const [currentFriInfo, setCurrentFriInfo] = useState("");
   const [currentUserInfo, setCurrentUserInfo] = useState("");
+  // console.log("allUserRec:", allUserRec);
   const handleInput = (e) => {
     setInputMessage(e.target.value);
   };
   const handleChatClick = (info, allMessages) => {
-    console.log("info", info);
+    // console.log("info", info);
     if (currentFriInfo && currentFriInfo.email === info.email) {
       return;
     }
@@ -43,7 +44,19 @@ function Main({ newSocket }) {
       };
       console.log(message);
       setAllMessageRec((premessage) => [...premessage, message]);
+      const newUserRec = allUserRec.map((el) => {
+        const findone = el.participants.filter((el) => {
+          return el.email === message.receiverEmail;
+        });
+        console.log("findone:", findone);
+        if (findone.length > 0) {
+          return { ...el, messages: [...el.messages, message] };
+        }
 
+        return el;
+      });
+      // console.log("newUserRec:", newUserRec);
+      setAllUserRec(newUserRec);
       newSocket.emit("send_Message", message);
 
       setInputMessage("");
@@ -60,7 +73,7 @@ function Main({ newSocket }) {
         });
         if (!isCancel && res && res.data) {
           setAllUserRec(res.data.results);
-          console.log("res:", res);
+          // console.log("res:", res);
           setCurrentUserInfo(res.data.loginUserInfo);
         }
       } catch (err) {

@@ -14,7 +14,7 @@ let newSocket;
 
 function Dashboard() {
   const [socket, setSocket] = useState("");
-  const [userData, setUserData] = useState("");
+  const [userEmail, setUserEmail] = useState("");
   // const newSocketRef = useRef(null);
 
   const navigate = useNavigate();
@@ -54,10 +54,10 @@ function Dashboard() {
           withCredentials: true,
         });
         const userEmail = res.data.userEmail;
-        setUserData(userEmail);
+        setUserEmail(userEmail);
 
-        console.log("socket", socket);
-        console.log("newSocket", newSocket);
+        // console.log("socket", socket);
+        // console.log("newSocket", newSocket);
 
         if (res.data.status === "success" && !socket) {
           if (!newSocket) {

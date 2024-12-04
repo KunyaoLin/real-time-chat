@@ -46,7 +46,7 @@ io.on("connection", (socket) => {
     console.log("onlineUsers add:", updateOnlineUsers);
   });
   socket.on("send_Message", async (message) => {
-    console.log("message:", message);
+    // console.log("message:", message);
     try {
       const checkFriendExist = await Friends.find({
         friends: {
@@ -92,7 +92,7 @@ io.on("connection", (socket) => {
             },
           ],
         });
-        console.log(newChat);
+        // console.log(newChat);
       }
       if (receiverSocketId) {
         io.to(receiverSocketId).emit("receive-message", message);
@@ -106,7 +106,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("disconnect", () => {
+  socket.on("disconnect", async () => {
     let disconnectUserId = null;
     for (const [userId, socketId] of onlineUsers.entries()) {
       if (socketId === socket.id) {
@@ -115,8 +115,14 @@ io.on("connection", (socket) => {
       }
     }
     if (disconnectUserId) {
-      console.log("disconnectUserId:", disconnectUserId);
-
+      // console.log("disconnectUserId:", disconnectUserId);
+      // const disconnectOne = await User.findOneAndUpdate(
+      //   {
+      //     email: disconnectUserId,
+      //   },
+      //   { onlineStatus: false }
+      // );
+      // console.log("disconnectOne:", disconnectOne);
       onlineUsers.delete(disconnectUserId);
       const updateOnlineUsers = [...onlineUsers];
 
