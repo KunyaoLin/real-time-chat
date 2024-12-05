@@ -40,8 +40,16 @@ app.use(express.static("public"));
 app.use(cookieParser());
 // require("dotenv").config({ path: "./config.env" });
 io.on("connection", (socket) => {
-  socket.on("addOnlineuser", (userId) => {
+  socket.on("addOnlineuser", async (userId) => {
     onlineUsers.set(userId, socket.id);
+    await User.findOneAndUpdate(
+      {
+        email: userId,
+      },
+      {
+        onlineStatus: true,
+      }
+    );
     const updateOnlineUsers = [...onlineUsers];
     console.log("onlineUsers add:", updateOnlineUsers);
   });
@@ -75,7 +83,6 @@ io.on("connection", (socket) => {
               senderEmail: message.senderEmail,
               receiverEmail: message.receiverEmail,
               message: message.message,
-              isRead: true,
             },
           },
         },
@@ -95,7 +102,18 @@ io.on("connection", (socket) => {
         // console.log(newChat);
       }
       if (receiverSocketId) {
-        io.to(receiverSocketId).emit("receive-message", message);
+        await ChatHistory.findOneAndUpdate(
+          {
+            participants: {
+              $all: [senderInfo[0]._id, friendInfo[0]._id],
+            },
+          },
+          {
+            isRead: true,
+          }
+        );
+        socket.to(receiverSocketId).emit("receive-message", message);
+
         // socket.emit("message-sent", {
         //   success: true,
         // });
@@ -108,7 +126,9 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", async () => {
     let disconnectUserId = null;
+    console.log("socketId:", socket.id);
     for (const [userId, socketId] of onlineUsers.entries()) {
+      console.log("socketId:", socketId);
       if (socketId === socket.id) {
         disconnectUserId = userId;
         break;
@@ -116,12 +136,12 @@ io.on("connection", (socket) => {
     }
     if (disconnectUserId) {
       // console.log("disconnectUserId:", disconnectUserId);
-      // const disconnectOne = await User.findOneAndUpdate(
-      //   {
-      //     email: disconnectUserId,
-      //   },
-      //   { onlineStatus: false }
-      // );
+      const disconnectOne = await User.findOneAndUpdate(
+        {
+          email: disconnectUserId,
+        },
+        { onlineStatus: false }
+      );
       // console.log("disconnectOne:", disconnectOne);
       onlineUsers.delete(disconnectUserId);
       const updateOnlineUsers = [...onlineUsers];

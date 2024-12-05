@@ -2,7 +2,7 @@ import { TextareaAutosize } from "@mui/base/TextareaAutosize";
 import SendIcon from "@mui/icons-material/Send";
 import Button from "@mui/material/Button";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ChatIcon from "./chatIcon";
 import DialogueInChat from "./dialogueInChat";
 import { ObjectId } from "bson";
@@ -16,12 +16,17 @@ function Main({ newSocket }) {
   const [openChat, setOpenChat] = useState(false);
   const [currentFriInfo, setCurrentFriInfo] = useState("");
   const [currentUserInfo, setCurrentUserInfo] = useState("");
-  // console.log("allUserRec:", allUserRec);
+  const bottomRef = useRef(null);
+
+  useEffect(() => {
+    if (bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior: "auto" });
+    }
+  }, [allMessageRec]);
   const handleInput = (e) => {
     setInputMessage(e.target.value);
   };
   const handleChatClick = (info, allMessages) => {
-    // console.log("info", info);
     if (currentFriInfo && currentFriInfo.email === info.email) {
       return;
     }
@@ -62,6 +67,7 @@ function Main({ newSocket }) {
       setInputMessage("");
     }
   };
+
   useEffect(() => {
     let isCancel = false;
     async function getAllChatRecord() {
@@ -79,7 +85,7 @@ function Main({ newSocket }) {
       } catch (err) {
         setAllUserRec([]);
       }
-      // if (!isCancel) setTimeout(getAllChatRecord, 5000); //loop data for every 5s
+      if (!isCancel) setTimeout(getAllChatRecord, 3000); //loop data for every 3s
     }
 
     getAllChatRecord();
@@ -91,8 +97,35 @@ function Main({ newSocket }) {
   useEffect(() => {
     let isMount = true;
     if (!newSocket || !isMount) return;
-    const handleMessage = (message) => {
-      setAllMessageRec((premessage) => [...premessage, message]);
+    const handleMessage = (newMessage) => {
+      const targetEmailArr = [
+        newMessage.senderEmail,
+        newMessage.receiverEmail,
+      ].sort();
+      // console.log("targetEmailArr", targetEmailArr);
+      const receiveNewRec = allUserRec.map((el) => {
+        const receiverArr = el.participants
+          .map((el) => {
+            return el.email;
+          })
+          .sort();
+        const result = targetEmailArr.every(
+          (value, index) => value === receiverArr[index]
+        );
+
+        if (result) {
+          return { ...el, messages: [...el.messages, newMessage] };
+        }
+        return el;
+      });
+
+      setAllUserRec(receiveNewRec);
+      console.log("currentFriInfo", currentFriInfo);
+      console.log("newMessageRec", newMessage.senderEmail);
+      console.log("test", currentFriInfo.email === newMessage.senderEmail);
+      if (currentFriInfo.email === newMessage.senderEmail) {
+        setAllMessageRec((premessage) => [...premessage, newMessage]);
+      }
     };
     newSocket.on("receive-message", handleMessage);
 
@@ -100,8 +133,7 @@ function Main({ newSocket }) {
       isMount = false;
       newSocket.off("receive-message", handleMessage);
     };
-  }, [newSocket]);
-
+  }, [newSocket, allUserRec, currentFriInfo]);
   return (
     <>
       <div
@@ -143,6 +175,7 @@ function Main({ newSocket }) {
                 const friendInfo = el.participants.filter((t) => {
                   return t.email !== currentUserInfo[0];
                 });
+                // console.log("friendInfo:", friendInfo);
                 return (
                   <button
                     onClick={() => handleChatClick(friendInfo[0], allMessages)}
@@ -204,6 +237,7 @@ function Main({ newSocket }) {
                     />
                   );
                 })}
+                <div ref={bottomRef} />
               </div>
 
               <form
