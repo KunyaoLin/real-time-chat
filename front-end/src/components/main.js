@@ -134,6 +134,8 @@ function Main({ newSocket }) {
       newSocket.off("receive-message", handleMessage);
     };
   }, [newSocket, allUserRec, currentFriInfo]);
+  console.log("allUserRec:", allUserRec);
+  console.log(" currentUserInfo[0]:", currentUserInfo[0]);
   return (
     <>
       <div
@@ -159,41 +161,80 @@ function Main({ newSocket }) {
             }}
           >
             {allUserRec?.length > 0 ? (
-              allUserRec.map((el) => {
-                const allMessages = el.messages;
-                const lastMessage = allMessages[allMessages.length - 1];
-                const lastNum = el.messages.length - 1;
-                const hours = new Date(
-                  el.messages[lastNum].timeStamp
-                ).getHours();
-                const mins = new Date(
-                  el.messages[lastNum].timeStamp
-                ).getMinutes();
-                const time = `${hours < 10 ? "0" + hours : hours}:${
-                  mins < 10 ? "0" + mins.toString() : mins
-                }`;
-                const friendInfo = el.participants.filter((t) => {
-                  return t.email !== currentUserInfo[0];
-                });
-                // console.log("friendInfo:", friendInfo);
-                return (
-                  <button
-                    onClick={() => handleChatClick(friendInfo[0], allMessages)}
-                    key={friendInfo[0].username}
-                  >
-                    <ChatIcon
-                      friendInfo={friendInfo[0]}
+              allUserRec
+                .slice() //sort friend by onlineStatus
+                .sort((a, b) => {
+                  const resultOne = a.participants.filter((el) => {
+                    const A =
+                      el.email === currentUserInfo[0]
+                        ? 1
+                        : el.onlineStatus
+                        ? 2
+                        : -1;
+                    return A > 1;
+                  });
+                  const resultTwo = b.participants.filter((el) => {
+                    const B =
+                      el.email === currentUserInfo[0]
+                        ? 1
+                        : el.onlineStatus
+                        ? 2
+                        : -1;
+                    return B > 1;
+                  });
+                  console.log("resultOne:", resultOne);
+                  console.log("resultTwo:", resultTwo);
+
+                  return resultTwo.length === resultOne.length
+                    ? 0
+                    : resultTwo.length > 0
+                    ? 1
+                    : -1;
+                })
+                // .sort((a, b) =>
+                //   b.participants.onlineStatus === a.onlineStatus
+                //     ? 0
+                //     : b.onlineStatus
+                //     ? 1
+                //     : -1
+                // )
+                .map((el) => {
+                  const allMessages = el.messages;
+                  const lastMessage = allMessages[allMessages.length - 1];
+                  const lastNum = el.messages.length - 1;
+                  const hours = new Date(
+                    el.messages[lastNum].timeStamp
+                  ).getHours();
+                  const mins = new Date(
+                    el.messages[lastNum].timeStamp
+                  ).getMinutes();
+                  const time = `${hours < 10 ? "0" + hours : hours}:${
+                    mins < 10 ? "0" + mins.toString() : mins
+                  }`;
+                  const friendInfo = el.participants.filter((t) => {
+                    return t.email !== currentUserInfo[0];
+                  });
+                  // console.log("friendInfo:", friendInfo);
+                  return (
+                    <button
+                      onClick={() =>
+                        handleChatClick(friendInfo[0], allMessages)
+                      }
                       key={friendInfo[0].username}
-                      message={lastMessage.message}
-                      time={time}
-                      style={{
-                        width: "270px",
-                        height: "56px",
-                      }}
-                    />
-                  </button>
-                );
-              })
+                    >
+                      <ChatIcon
+                        friendInfo={friendInfo[0]}
+                        key={friendInfo[0].username}
+                        message={lastMessage.message}
+                        time={time}
+                        style={{
+                          width: "270px",
+                          height: "56px",
+                        }}
+                      />
+                    </button>
+                  );
+                })
             ) : (
               <div>no user found</div>
             )}
