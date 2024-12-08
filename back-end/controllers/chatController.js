@@ -9,60 +9,74 @@ exports.sendMessage = catchAsync(async (req, res, next) => {
     return res.status(400).json({
       error: "Message content is required",
     });
-  const checkFriendExist = await Friends.find({
-    friends: {
-      $all: [req.user.email, messageObj.receiverEmail],
-    },
-    status: "actived",
-  });
-  if (!checkFriendExist)
-    return res.status(400).json({
-      error: "You are blocked by this email,send message error",
+  try {
+    const sendTo = await User.findOne({
+      email: messageObj.receiverEmail,
     });
-  const friendInfo = await User.find({
-    email: messageObj.receiverEmail,
-  });
+    console.log("sendTo:", sendTo);
+    if (!sendTo) throw new Error("No User found, send message error!");
+    const checkFriendExist = await Friends.find({
+      friends: {
+        $all: [req.user._id, sendTo._id],
+      },
+      status: "actived",
+    });
+    if (!checkFriendExist)
+      return res.status(400).json({
+        error: "You are blocked by this email,send message error",
+      });
+    const result = await ChatHistory.findOneAndUpdate(
+      {
+        participants: {
+          $all: [req.user._id, sendTo._id],
+        },
+      },
+      {
+        $push: {
+          messages: {
+            senderEmail: req.user.email,
+            receiverEmail: messageObj.receiverEmail,
+            message: messageObj.message,
+            timeStamp: Date.now(),
+          },
+        },
+      },
+      { new: true }
+    );
+    if (!result) {
+      const newChat = await ChatHistory.create({
+        participants: [req.user._id, sendTo._id],
+        messages: [
+          {
+            senderEmail: messageObj.senderEmail,
+            receiverEmail: messageObj.receiverEmail,
+            message: messageObj.message,
+          },
+        ],
+      });
+      console.log(newChat);
+      return res.status(200).json({
+        status: "success",
+        message: "message send success successfully",
+        data: newChat,
+      });
+    }
+    res.status(200).json({ message: "message send successfully" });
 
-  const result = await ChatHistory.findOneAndUpdate(
-    {
-      participants: {
-        $all: [req.user._id, friendInfo[0]._id],
-      },
-    },
-    {
-      $push: {
-        messages: {
-          senderEmail: req.user.email,
-          receiverEmail: messageObj.receiverEmail,
-          message: messageObj.message,
-          timeStamp: Date.now(),
-        },
-      },
-    },
-    { new: true }
-  );
-  console.log("result:", result);
-  if (!result) {
-    const newChat = await ChatHistory.create({
-      participants: [req.user._id, friendInfo[0]._id],
-      messages: [
-        {
-          senderEmail: messageObj.senderEmail,
-          receiverEmail: messageObj.receiverEmail,
-          message: messageObj.message,
-        },
-      ],
-    });
-    console.log(newChat);
-    return res.status(200).json({
-      status: "success",
-      message: "message send success successfully",
-      data: newChat,
+    // console.log("result:", result);
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      message: err,
     });
   }
+
+  // const friendInfo = await User.find({
+  //   email: messageObj.receiverEmail,
+  // });
+
   // io.emit("message", message);
   // console.log(`${req.user.username}:`, message);
-  res.status(200).json({ message: "message send successfully" });
 });
 exports.getMessages = (req, res, next) => {
   const { message } = req.body;
@@ -113,7 +127,7 @@ exports.setAllMesgRead = catchAsync(async (req, res) => {
   );
   console.log("result:", result);
   if (result) {
-    res.status(200).json({
+    return res.status(200).json({
       message: "All messages are read",
       data: result,
     });

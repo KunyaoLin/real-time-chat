@@ -110,6 +110,7 @@ function Main({ newSocket }) {
           withCredentials: true,
         });
         if (!isCancel && res && res.data) {
+          console.log("res:", res);
           setAllUserRec(res.data.results);
           // console.log("res:", res);
           setCurrentUserInfo(res.data.loginUserInfo);
