@@ -97,3 +97,47 @@ exports.getChatRecord = catchAsync(async (req, res) => {
     message: "All related chat history fetch success",
   });
 });
+
+exports.setAllMesgRead = catchAsync(async (req, res) => {
+  const result = await ChatHistory.updateMany(
+    {
+      participants: {
+        $all: [req.user._id, req.body.FriendInfo._id],
+      },
+    },
+    {
+      $set: {
+        "messages.$[].isRead": true,
+      },
+    }
+  );
+  console.log("result:", result);
+  if (result) {
+    res.status(200).json({
+      message: "All messages are read",
+      data: result,
+    });
+  }
+  res.status(200).json({
+    message: "No unread message found",
+    // data: result,
+  });
+});
+
+exports.getAllUnreadMegsNum = catchAsync(async (req, res) => {
+  let unReadMegs = 0;
+  const allMegsRec = await ChatHistory.find({
+    participants: req.user._id,
+  });
+  allMegsRec.forEach((el) => {
+    el.messages.forEach((x) => {
+      if (!x.isRead) unReadMegs++;
+    });
+  });
+  console.log("unReadMegs:", unReadMegs);
+
+  res.status(200).json({
+    message: "Sent all unread Messages",
+    data: { unReadMegs },
+  });
+});

@@ -11,13 +11,13 @@ import {
 import { useNavigate } from "react-router-dom";
 import Logo from "./logo";
 import { showAlert } from "../ult/alert";
-import { useAuth } from "../context/globalContext";
+import { useGlobalContext } from "../context/globalContext";
 const URL = process.env.REACT_APP_SERVER_URL;
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const { editAuthenticated } = useAuth();
+  const { editAuthenticated } = useGlobalContext();
   const handEmailChange = (e) => {
     setEmail(e.target.value);
   };

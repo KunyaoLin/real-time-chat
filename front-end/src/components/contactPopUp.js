@@ -1,12 +1,14 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import MessageInform from "./MessageInform";
 import { MdAccountBox } from "react-icons/md";
 import ContactIcon from "./contactIcon";
+import { useGlobalContext } from "../context/globalContext";
 
 function ContactPopUp() {
   const [visiable, setVisiable] = useState(false);
   const [animateout, setAnimateout] = useState(false);
   const popUpRef = useRef(null);
+  const { friends } = useGlobalContext();
   const name = "defaultUser";
   const online1 = true;
   const online2 = false;
@@ -57,8 +59,11 @@ function ContactPopUp() {
           } space-y-1`}
           ref={popUpRef}
         >
-          <ContactIcon name={name} online={online1} />
-          <ContactIcon name={name} online={online2} />
+          {friends?.map((el) => {
+            return <ContactIcon />;
+          })}
+          {/* <ContactIcon name={name} online={online1} />
+          <ContactIcon name={name} online={online2} /> */}
         </div>
       )}
     </div>

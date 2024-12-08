@@ -3,7 +3,10 @@ import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
 import "../styles.css";
 import MessageInform from "./MessageInform";
 import ChatIcon from "./chatIcon";
+import { useGlobalContext } from "../context/globalContext";
 function ChatPopUp() {
+  const { numUnreadMegs } = useGlobalContext();
+
   // const [visiable, setVisiable] = useState(false);
   // const [animateout, setAnimateout] = useState(false);
 
@@ -61,7 +64,8 @@ function ChatPopUp() {
           }}
         />
       </button> */}
-      <MessageInform num={27} />
+
+      <MessageInform num={numUnreadMegs} />
 
       {/* {visiable && (
         <div

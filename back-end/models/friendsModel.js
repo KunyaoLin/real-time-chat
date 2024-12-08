@@ -1,9 +1,17 @@
 const mongoose = require("mongoose");
 const FriendsSchema = new mongoose.Schema(
   {
-    friends: {
-      type: [String],
-    },
+    // friends: {
+    //   type: [String],
+    //   // ref: "User",
+    // },
+    friends: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+      },
+    ],
     status: {
       type: String,
       enum: ["actived", "Blocked"],

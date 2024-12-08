@@ -6,33 +6,58 @@ import React, { useEffect, useRef, useState } from "react";
 import ChatIcon from "./chatIcon";
 import DialogueInChat from "./dialogueInChat";
 import { ObjectId } from "bson";
+import { useGlobalContext } from "../context/globalContext";
 const URL = process.env.REACT_APP_SERVER_URL;
 
 function Main({ newSocket }) {
   const [inputMessage, setInputMessage] = useState("");
-
   const [allUserRec, setAllUserRec] = useState([]);
   const [allMessageRec, setAllMessageRec] = useState([]);
   const [openChat, setOpenChat] = useState(false);
   const [currentFriInfo, setCurrentFriInfo] = useState("");
   const [currentUserInfo, setCurrentUserInfo] = useState("");
   const bottomRef = useRef(null);
+  const { editUnReadMegsNum, editUnReadMegsBySend } = useGlobalContext();
 
-  useEffect(() => {
-    if (bottomRef.current) {
-      bottomRef.current.scrollIntoView({ behavior: "auto" });
-    }
-  }, [allMessageRec]);
-  const handleInput = (e) => {
-    setInputMessage(e.target.value);
-  };
-  const handleChatClick = (info, allMessages) => {
+  // console.log("allUserRec:", allUserRec);
+  const handleChatClick = async (info, allMessages) => {
+    let unReadMegs = 0;
+
     if (currentFriInfo && currentFriInfo.email === info.email) {
       return;
     }
+    console.log("info:", info);
     setCurrentFriInfo(info);
     setAllMessageRec(allMessages);
+    allUserRec.forEach((el) => {
+      const result = el.participants.filter((i) => {
+        return i.email === info.email;
+      });
+      if (result.length !== 0) {
+        el.messages.forEach((x) => {
+          if (!x.isRead) {
+            unReadMegs++;
+            x.isRead = true;
+          }
+        });
+        editUnReadMegsNum(unReadMegs);
+        console.log("unReadMegs:", unReadMegs);
+      }
+      // console.log("result:", result);
+    });
+
     setOpenChat(true);
+    try {
+      const result = await axios({
+        url: `${URL}/chat/setAllMesgRead`,
+        method: "POST",
+        data: {
+          FriendInfo: info,
+        },
+        withCredentials: true,
+      });
+      // console.log("result:", result);
+    } catch (err) {}
   };
   //submit message
   const handleSubmitMessage = (e) => {
@@ -67,7 +92,14 @@ function Main({ newSocket }) {
       setInputMessage("");
     }
   };
-
+  useEffect(() => {
+    if (bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior: "auto" });
+    }
+  }, [allMessageRec]);
+  const handleInput = (e) => {
+    setInputMessage(e.target.value);
+  };
   useEffect(() => {
     let isCancel = false;
     async function getAllChatRecord() {
@@ -85,7 +117,7 @@ function Main({ newSocket }) {
       } catch (err) {
         setAllUserRec([]);
       }
-      if (!isCancel) setTimeout(getAllChatRecord, 3000); //loop data for every 3s
+      // if (!isCancel) setTimeout(getAllChatRecord, 3000); //loop data for every 3s
     }
 
     getAllChatRecord();
@@ -125,17 +157,29 @@ function Main({ newSocket }) {
       console.log("test", currentFriInfo.email === newMessage.senderEmail);
       if (currentFriInfo.email === newMessage.senderEmail) {
         setAllMessageRec((premessage) => [...premessage, newMessage]);
+        const setAllRead = async () => {
+          await axios({
+            url: `${URL}/chat/setAllMesgRead`,
+            method: "POST",
+            data: {
+              FriendInfo: currentFriInfo,
+            },
+            withCredentials: true,
+          });
+        };
+        setAllRead();
+      }
+      if (currentFriInfo.email !== newMessage.senderEmail) {
+        editUnReadMegsBySend();
       }
     };
     newSocket.on("receive-message", handleMessage);
-
     return () => {
       isMount = false;
       newSocket.off("receive-message", handleMessage);
     };
   }, [newSocket, allUserRec, currentFriInfo]);
-  console.log("allUserRec:", allUserRec);
-  console.log(" currentUserInfo[0]:", currentUserInfo[0]);
+
   return (
     <>
       <div
@@ -182,8 +226,6 @@ function Main({ newSocket }) {
                         : -1;
                     return B > 1;
                   });
-                  console.log("resultOne:", resultOne);
-                  console.log("resultTwo:", resultTwo);
 
                   return resultTwo.length === resultOne.length
                     ? 0
@@ -191,15 +233,19 @@ function Main({ newSocket }) {
                     ? 1
                     : -1;
                 })
-                // .sort((a, b) =>
-                //   b.participants.onlineStatus === a.onlineStatus
-                //     ? 0
-                //     : b.onlineStatus
-                //     ? 1
-                //     : -1
-                // )
                 .map((el) => {
+                  let nonereadMes = 0;
                   const allMessages = el.messages;
+                  // console.log(" el.messages:", el.messages);
+                  allMessages.forEach((e) => {
+                    if (
+                      currentFriInfo.email !== e.senderEmail &&
+                      e.receiverEmail === currentUserInfo[0] &&
+                      !e.isRead
+                    )
+                      nonereadMes++;
+                  });
+                  // console.log("nonereadMes:", nonereadMes);
                   const lastMessage = allMessages[allMessages.length - 1];
                   const lastNum = el.messages.length - 1;
                   const hours = new Date(
@@ -223,6 +269,7 @@ function Main({ newSocket }) {
                       key={friendInfo[0].username}
                     >
                       <ChatIcon
+                        nonereadMes={nonereadMes}
                         friendInfo={friendInfo[0]}
                         key={friendInfo[0].username}
                         message={lastMessage.message}

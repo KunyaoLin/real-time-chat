@@ -1,58 +1,65 @@
+const mongoose = require("mongoose");
+const ChatHistory = require("../models/chatHistoryModel");
 const FriendReq = require("../models/friendReqModel");
 const Friends = require("../models/friendsModel");
 const User = require("../models/userModel");
 const catchAsync = require("../ults/catchAsync");
 exports.sendFriendreq = catchAsync(async (req, res) => {
+  const searchFri = await User.findOne({ email: req.body.receiverEmail });
   //check received Email whether is a friend or not
-  const checkFriend = await Friends.find({
-    friends: {
-      $all: [`${req.user.email}`, `${req.body.receiverEmail}`],
-    },
-  });
-  console.log("checkFriend", checkFriend, checkFriend.length);
-  if (checkFriend.status === "blocked")
-    return res.status(401).json({
-      message: "Send friend request error, You was blocked by this email",
+  if (searchFri) {
+    const checkFriend = await Friends.find({
+      friends: {
+        $all: [`${req.user._id}`, `${searchFri._id}`],
+      },
     });
-  if (checkFriend.length !== 0)
-    return res.status(200).json({
-      message: "This user is already your friend",
-    });
-  const friReq = await FriendReq.findOne({
-    receiverEmail: req.body.receiverEmail,
-    status: "pending",
-  });
-  if (friReq)
-    return res.status(200).json({
-      message:
-        "You already send friend request to this email account! please wait for response from your friend.",
-    });
-  const currentUser = req.user;
-  const friend = await User.findOne({
-    email: `${req.body.receiverEmail}`,
-  });
-  if (!friend)
-    return res.status(500).json({
-      status: "error",
-      message: "User not Found or inactive",
-    });
-  try {
-    const newFriendReq = await FriendReq.create({
-      senderEmail: currentUser.email,
-      receiverEmail: friend.email,
-    });
-    if (newFriendReq)
-      res.status(200).json({
-        status: "success",
-        message: "send friend request success",
+    if (checkFriend.status === "blocked")
+      return res.status(401).json({
+        message: "Send friend request error, You was blocked by this email",
       });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({
-      status: "error",
-      message: "send friend request fail",
+    if (checkFriend.length !== 0)
+      return res.status(200).json({
+        message: "This user is already your friend",
+      });
+    console.log("checkFriend", checkFriend, checkFriend.length);
+    const friReq = await FriendReq.findOne({
+      receiverEmail: req.body.receiverEmail,
+      status: "pending",
     });
+    if (friReq)
+      return res.status(200).json({
+        message:
+          "You already send friend request to this email account! please wait for response from your friend.",
+      });
+    const currentUser = req.user;
+
+    try {
+      const newFriendReq = await FriendReq.create({
+        senderEmail: currentUser.email,
+        receiverEmail: searchFri.email,
+      });
+      if (newFriendReq)
+        res.status(200).json({
+          status: "success",
+          message: "send friend request success",
+        });
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({
+        status: "error",
+        message: "send friend request fail",
+      });
+    }
   }
+
+  // const friend = await User.findOne({
+  //   email: `${req.body.receiverEmail}`,
+  // });
+  // if (!friend)
+  //   return res.status(500).json({
+  //     status: "error",
+  //     message: "User not Found or inactive",
+  //   });
 });
 exports.getAllFriendsReq = catchAsync(async (req, res, next) => {
   const allReq = await FriendReq.find({
@@ -93,9 +100,11 @@ exports.acceptFriend = catchAsync(async (req, res) => {
       }
     );
     if (!friendReq) throw new Error("accept friend request error");
-
+    const friendInfo = await User.findOne({
+      email: req.body.senderEmail,
+    });
     const addFriend = await Friends.create({
-      friends: [`${req.user.email}`, `${req.body.senderEmail}`],
+      friends: [`${req.user._id}`, `${friendInfo._id}`],
     });
     if (!addFriend) throw new Error("add Friend error");
     res.status(200).json({
@@ -128,31 +137,52 @@ exports.rejectFriendReq = catchAsync(async (req, res) => {
   }
 });
 
-exports.deleteFriend = catchAsync(async (req, res, next) => {
-  const friDelete = await Friends.findOneAndDelete({
-    friends: { $all: [`${req.user.email}`, `${req.body.deleteEmail}`] },
+exports.deleteFriend = catchAsync(async (req, res) => {
+  const DeleteAcc = await User.findOne({
+    email: req.body.deleteEmail,
   });
-  const reqDelete = await FriendReq.findOneAndDelete({
-    $or: [
-      {
-        $and: [
-          { senderEmail: `${req.user.email}` },
-          { receiverEmail: `${req.body.deleteEmail}` },
-        ],
+  // console.log("DeleteAcc", DeleteAcc._id);
+  // console.log("user", req.user._id);
+  if (DeleteAcc) {
+    const friDelete = await Friends.findOneAndDelete({
+      friends: {
+        $all: [req.user._id, DeleteAcc._id],
       },
-      {
-        $and: [
-          { senderEmail: `${req.body.deleteEmail}` },
-          { receiverEmail: `${req.user.email}` },
-        ],
-      },
-    ],
-  });
-  if (!friDelete || !reqDelete)
-    return res.status(500).json({
-      status: "error",
-      message: "Delete friend error",
     });
+    console.log(friDelete);
+    const reqDelete = await FriendReq.findOneAndDelete({
+      $or: [
+        {
+          $and: [
+            { senderEmail: `${req.user.email}` },
+            { receiverEmail: `${req.body.deleteEmail}` },
+          ],
+        },
+        {
+          $and: [
+            { senderEmail: `${req.body.deleteEmail}` },
+            { receiverEmail: `${req.user.email}` },
+          ],
+        },
+      ],
+    });
+    const result = await ChatHistory.findOneAndDelete({
+      participants: { $all: [`${req.user._id}`, `${DeleteAcc._id}`] },
+    });
+    if (!friDelete || !reqDelete) {
+      return res.status(500).json({
+        status: "error",
+        message: "Delete friend error",
+        data: {
+          friDelete,
+          reqDelete,
+          result,
+        },
+      });
+    }
+    // console.log("result", result);
+  }
+
   res.status(200).json({
     status: "success",
     message: "Delete friend success",
@@ -161,8 +191,8 @@ exports.deleteFriend = catchAsync(async (req, res, next) => {
 
 exports.getAllFriends = catchAsync(async (req, res, next) => {
   const FriendList = await Friends.find({
-    friends: `${req.user.email}`,
-  });
+    friends: `${req.user._id}`,
+  }).populate("friends");
   if (FriendList.length === 0)
     return res.status(200).json({
       status: "success",
@@ -178,23 +208,32 @@ exports.getAllFriends = catchAsync(async (req, res, next) => {
 });
 exports.blockFriend = catchAsync(async (req, res) => {
   try {
-    const blockResult = await Friends.findOneAndUpdate(
-      {
-        friends: {
-          $all: [`${req.user.email}`, `${req.body.blockEmail}`],
-        },
-      },
-      {
-        status: "blocked",
-        blockd_by: `${req.user.email}`,
-      }
-    );
-    console.log(blockResult);
-    if (!blockResult) throw new Error("Block friend error");
-    res.status(200).json({
-      status: "success",
-      message: "block friend success",
+    const blockAcc = await User.findOne({
+      email: req.body.blockEmail,
     });
+    if (blockAcc) {
+      const blockResult = await Friends.findOneAndUpdate(
+        {
+          friends: {
+            $all: [req.user._id, blockAcc._id],
+          },
+        },
+        {
+          status: "blocked",
+          blockd_by: `${req.user.email}`,
+        }
+      );
+      console.log(blockResult);
+      if (!blockResult) throw new Error("Block friend error");
+      res.status(200).json({
+        status: "success",
+        message: "block friend success",
+      });
+    }
+    if (!blockAcc)
+      return res.status(500).json({
+        message: "block friend err",
+      });
   } catch (err) {
     res.status(500).json({
       message: err,
@@ -203,30 +242,42 @@ exports.blockFriend = catchAsync(async (req, res) => {
 });
 exports.unblockFriend = catchAsync(async (req, res) => {
   try {
-    const unblockResult = await Friends.findOneAndUpdate(
-      {
-        $and: [
-          {
-            friends: {
-              $all: [`${req.user.email}`, `${req.body.unblockEmail}`],
-            },
-          },
-          {
-            status: "blocked",
-          },
-        ],
-      },
-      {
-        status: "actived",
-        blockd_by: null,
-      }
-    );
-    console.log(unblockResult);
-    if (!unblockResult) throw new Error("unblock friend error");
-    res.status(200).json({
-      status: "success",
-      message: "unblock friend success",
+    const unblockAcc = await User.findOne({
+      email: req.body.unblockEmail,
     });
+    if (unblockAcc) {
+      const unblockResult = await Friends.findOneAndUpdate(
+        // {
+        //   $and: [
+        //     {
+        //       friends: {
+        //         $all: [`${req.user.email}`, `${req.body.unblockEmail}`],
+        //       },
+        //     },
+        //     {
+        //       status: "blocked",
+        //     },
+        //   ],
+        // },
+        {
+          friends: {
+            $all: [req.user._id, unblockAcc._id],
+          },
+          status: "blocked",
+        },
+        {
+          status: "actived",
+          blockd_by: null,
+        }
+      );
+      if (!unblockResult) throw new Error("block friend error");
+      console.log("unblockResult", unblockResult);
+
+      res.status(200).json({
+        status: "success",
+        message: "unblock friend success",
+      });
+    }
   } catch (err) {
     res.status(500).json({
       message: err,

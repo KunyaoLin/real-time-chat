@@ -9,16 +9,20 @@ import Main from "./main";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { showAlert } from "../ult/alert";
+import { useGlobalContext } from "../context/globalContext";
 const URL = process.env.REACT_APP_SERVER_URL;
 let newSocket;
 
 function Dashboard() {
   const [socket, setSocket] = useState("");
   const [userEmail, setUserEmail] = useState("");
+  const [unReadMegs, setUnReadMegs] = useState("");
   // const newSocketRef = useRef(null);
-
   const navigate = useNavigate();
 
+  // const countUnReadMegs = (num) => {
+  //   setUnReadMegs(num);
+  // };
   const handleExit = async () => {
     const response = await axios({
       method: "POST",
@@ -91,6 +95,7 @@ function Dashboard() {
       }
     };
   }, []);
+
   return (
     <div
       className="grid grid-cols-[50px_auto] w-full h-full bg-slate-800"

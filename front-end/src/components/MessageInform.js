@@ -13,25 +13,31 @@ function MessageInform(props) {
   }, [props.num]);
 
   return (
-    <span
-      style={{
-        position: "absolute",
-        top: "-5px",
-        right: "-5px",
-        backgroundColor: "red",
-        color: "white",
-        borderRadius: "50%",
-        width: "16px",
-        height: "16px",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        fontSize: "10px",
-        fontWeight: "bold",
-      }}
-    >
-      {number}
-    </span>
+    <>
+      {number > 0 ? (
+        <span
+          style={{
+            position: "absolute",
+            top: "-5px",
+            right: "-5px",
+            backgroundColor: "red",
+            color: "white",
+            borderRadius: "50%",
+            width: "16px",
+            height: "16px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            fontSize: "10px",
+            fontWeight: "bold",
+          }}
+        >
+          {number}
+        </span>
+      ) : (
+        ""
+      )}
+    </>
   );
 }
 export default MessageInform;

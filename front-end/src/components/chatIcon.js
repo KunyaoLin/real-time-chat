@@ -13,8 +13,8 @@ function ChatIcon(props) {
     <div
       className="flex bg-slate-100 hover:bg-orange-100 rounded-lg p-1 mt-1 ml-1"
       style={{
-        maxWidth: "100%", // 限制最大宽度
-        overflow: "hidden", // 防止内容溢出
+        maxWidth: "100%",
+        overflow: "hidden",
       }}
     >
       <span
@@ -50,7 +50,7 @@ function ChatIcon(props) {
             className="flex flex-row justify-between w-full h-full"
             style={{
               flexGrow: 1,
-              marginRight: "10px", // 给时间间距
+              marginRight: "10px",
             }}
           >
             <p> {props.friendInfo.username}</p>
@@ -63,14 +63,37 @@ function ChatIcon(props) {
         <p
           className="px-2 text-left w-full font-roboto text-gray-900 text-sm"
           style={{
+            position: "relative",
             height: "20px",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
-            // width: "200px",
             overflow: "hidden",
           }}
         >
           {totolText}
+          {props.nonereadMes ? (
+            <span
+              style={{
+                position: "absolute",
+                top: "1px",
+                right: "3px",
+                backgroundColor: "blue",
+                color: "white",
+                borderRadius: "50%",
+                width: "16px",
+                height: "16px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                fontSize: "10px",
+                fontWeight: "bold",
+              }}
+            >
+              {props.nonereadMes}
+            </span>
+          ) : (
+            ""
+          )}
         </p>
       </div>
     </div>
