@@ -1,10 +1,12 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import MessageInform from "./MessageInform";
 import { MdAccountBox } from "react-icons/md";
+import { FaRegBell } from "react-icons/fa";
+
 import ContactIcon from "./contactIcon";
 import { useGlobalContext } from "../context/globalContext";
 
-function ContactPopUp() {
+function NotificationPopUp() {
   const [visiable, setVisiable] = useState(false);
   const [animateout, setAnimateout] = useState(false);
   const popUpRef = useRef(null);
@@ -18,8 +20,8 @@ function ContactPopUp() {
     }, 300);
   };
   const handlePopUp = () => {
-    console.log("visiable", visiable);
-    console.log("animateout", animateout);
+    // console.log("visiable", visiable);
+    // console.log("animateout", animateout);
     if (visiable) {
       handleAnimate();
     } else {
@@ -48,14 +50,11 @@ function ContactPopUp() {
     >
       {" "}
       <button onClick={handlePopUp}>
-        <MdAccountBox style={{ color: "white", fontSize: "30px" }} />
+        <FaRegBell style={{ color: "white", fontSize: "30px" }} />
       </button>
-      {/* <MessageInform num={99} /> */}
       {visiable && (
         <div
-          className={`contactpopUp ${
-            animateout ? "hidden" : "active"
-          } space-y-1`}
+          className={`bellpopUp ${animateout ? "hidden" : "active"} space-y-1`}
           ref={popUpRef}
         >
           {friends?.map((el) => {
@@ -75,4 +74,4 @@ function ContactPopUp() {
     </div>
   );
 }
-export default ContactPopUp;
+export default NotificationPopUp;

@@ -193,18 +193,27 @@ exports.getAllFriends = catchAsync(async (req, res, next) => {
   const FriendList = await Friends.find({
     friends: `${req.user._id}`,
   }).populate("friends");
-  if (FriendList.length === 0)
+  if (FriendList.length === 0) {
     return res.status(200).json({
       status: "success",
       message: "No friends on your contact,please add some friends!",
     });
-  res.status(200).json({
-    status: "success",
-    message: "All friends load to your contact",
-    data: {
-      FriendList,
-    },
-  });
+  } else {
+    console.log("FriendList", FriendList);
+    const FriendsContact = FriendList.map((el) => {
+      const result = el.friends.filter((el) => el.email !== req.user.email);
+      console.log("result", result);
+      return { ...el, friends: result };
+    });
+    console.log("FriendsContact", FriendsContact);
+    res.status(200).json({
+      status: "success",
+      message: "All friends load to your contact",
+      data: {
+        FriendsContact,
+      },
+    });
+  }
 });
 exports.blockFriend = catchAsync(async (req, res) => {
   try {

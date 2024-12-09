@@ -58,7 +58,7 @@ io.on("connection", (socket) => {
     try {
       const checkFriendExist = await Friends.find({
         friends: {
-          $all: [message.senderEmail, message.receiverEmail],
+          $all: [message.senderId, message.receiverId],
         },
         status: "actived",
       });

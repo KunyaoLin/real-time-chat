@@ -5,10 +5,11 @@ function ContactIcon(props) {
     <div className="flex bg-slate-100 hover:bg-orange-100 rounded-lg p-1">
       <span>
         <Avatar
-          src={`${props.name}.png`}
-          alt={`${props.name}`}
+          src={`${props.avatar}`}
+          alt={`${props.avatar}`}
           sx={{
             fontSize: 10,
+            filter: props.online ? "none" : "grayscale(80%)",
           }}
         />
         <span

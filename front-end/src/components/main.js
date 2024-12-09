@@ -48,7 +48,7 @@ function Main({ newSocket }) {
 
     setOpenChat(true);
     try {
-      const result = await axios({
+      await axios({
         url: `${URL}/chat/setAllMesgRead`,
         method: "POST",
         data: {
@@ -68,17 +68,19 @@ function Main({ newSocket }) {
         message: inputMessage,
         senderEmail: `${currentUserInfo[0]}`,
         receiverEmail: `${currentFriInfo.email}`,
+        senderId: `${currentUserInfo[2]}`,
+        receiverId: `${currentFriInfo._id}`,
         _id: new ObjectId(),
         timeStamp: Date.now(),
         isRead: false,
       };
-      console.log(message);
+      // console.log("message", message);
       setAllMessageRec((premessage) => [...premessage, message]);
       const newUserRec = allUserRec.map((el) => {
         const findone = el.participants.filter((el) => {
           return el.email === message.receiverEmail;
         });
-        console.log("findone:", findone);
+        // console.log("findone:", findone);
         if (findone.length > 0) {
           return { ...el, messages: [...el.messages, message] };
         }
@@ -110,7 +112,7 @@ function Main({ newSocket }) {
           withCredentials: true,
         });
         if (!isCancel && res && res.data) {
-          console.log("res:", res);
+          // console.log("res:", res);
           setAllUserRec(res.data.results);
           // console.log("res:", res);
           setCurrentUserInfo(res.data.loginUserInfo);
@@ -135,31 +137,32 @@ function Main({ newSocket }) {
         newMessage.senderEmail,
         newMessage.receiverEmail,
       ].sort();
-      // console.log("targetEmailArr", targetEmailArr);
-      const receiveNewRec = allUserRec.map((el) => {
-        const receiverArr = el.participants
-          .map((el) => {
-            return el.email;
-          })
-          .sort();
-        const result = targetEmailArr.every(
-          (value, index) => value === receiverArr[index]
-        );
-
-        if (result) {
-          return { ...el, messages: [...el.messages, newMessage] };
-        }
-        return el;
-      });
-
-      setAllUserRec(receiveNewRec);
-      console.log("currentFriInfo", currentFriInfo);
-      console.log("newMessageRec", newMessage.senderEmail);
-      console.log("test", currentFriInfo.email === newMessage.senderEmail);
       if (currentFriInfo.email === newMessage.senderEmail) {
-        setAllMessageRec((premessage) => [...premessage, newMessage]);
+        const messageRead = {
+          ...newMessage,
+          isRead: true,
+        };
+
+        const receiveNewRec = allUserRec.map((el) => {
+          const receiverArr = el.participants
+            .map((el) => {
+              return el.email;
+            })
+            .sort();
+          console.log("receiverArr:", receiverArr);
+          const result = targetEmailArr.every(
+            (value, index) => value === receiverArr[index]
+          );
+          console.log("result:", result);
+          if (result) {
+            return { ...el, messages: [...el.messages, messageRead] };
+          }
+          return el;
+        });
+        setAllUserRec(receiveNewRec);
+        setAllMessageRec((premessage) => [...premessage, messageRead]);
         const setAllRead = async () => {
-          await axios({
+          const setRead = await axios({
             url: `${URL}/chat/setAllMesgRead`,
             method: "POST",
             data: {
@@ -167,10 +170,27 @@ function Main({ newSocket }) {
             },
             withCredentials: true,
           });
+          console.log("setRead:", setRead);
         };
         setAllRead();
-      }
-      if (currentFriInfo.email !== newMessage.senderEmail) {
+      } else {
+        const receiveNewRec = allUserRec.map((el) => {
+          const receiverArr = el.participants
+            .map((el) => {
+              return el.email;
+            })
+            .sort();
+          // console.log("receiverArr:", receiverArr);
+          const result = targetEmailArr.every(
+            (value, index) => value === receiverArr[index]
+          );
+          console.log("result:", result);
+          if (result) {
+            return { ...el, messages: [...el.messages, newMessage] };
+          }
+          return el;
+        });
+        setAllUserRec(receiveNewRec);
         editUnReadMegsBySend();
       }
     };
@@ -179,8 +199,9 @@ function Main({ newSocket }) {
       isMount = false;
       newSocket.off("receive-message", handleMessage);
     };
-  }, [newSocket, allUserRec, currentFriInfo]);
-
+  }, [newSocket, allUserRec, currentFriInfo, editUnReadMegsBySend]);
+  // console.log("friendsInfo: ", currentFriInfo);
+  // console.log("userinfo:", currentUserInfo);
   return (
     <>
       <div
@@ -387,7 +408,11 @@ function Main({ newSocket }) {
               </form>
             </div>
           ) : (
-            <div>111</div>
+            <div className="flex w-full h-full flex-col items-center justify-center">
+              <p className="text-center font-serif text-3xl">
+                Welcome to Real Time Chat App
+              </p>
+            </div>
           )}
         </div>
       </div>

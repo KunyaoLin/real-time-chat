@@ -10,6 +10,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { showAlert } from "../ult/alert";
 import { useGlobalContext } from "../context/globalContext";
+import NotificationPopUp from "./notificationPopUp";
 const URL = process.env.REACT_APP_SERVER_URL;
 let newSocket;
 
@@ -138,9 +139,13 @@ function Dashboard() {
               display: "flex",
               justifyContent: "center",
               alignContent: "center",
+              zIndex: "9999",
             }}
           >
-            <div style={{ position: "relative", display: "inline-block" }}>
+            <div>
+              <NotificationPopUp />
+            </div>
+            {/* <div style={{ position: "relative", display: "inline-block" }}>
               <FaRegBell style={{ color: "white", fontSize: "30px" }} />
               <span
                 style={{
@@ -161,7 +166,7 @@ function Dashboard() {
               >
                 3
               </span>
-            </div>
+            </div> */}
           </div>
         </div>
 

@@ -27,6 +27,7 @@ function ChatIcon(props) {
           alt={`${props.friendInfo.avatar}`}
           sx={{
             fontSize: 10,
+            filter: props.friendInfo.onlineStatus ? "none" : "grayscale(80%)",
           }}
         />
 

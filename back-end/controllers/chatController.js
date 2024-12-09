@@ -23,7 +23,8 @@ exports.sendMessage = catchAsync(async (req, res, next) => {
     });
     if (!checkFriendExist)
       return res.status(400).json({
-        error: "You are blocked by this email,send message error",
+        error:
+          "You are blocked or not a friend by this email,send message error",
       });
     const result = await ChatHistory.findOneAndUpdate(
       {
@@ -90,7 +91,8 @@ exports.getMessages = (req, res, next) => {
 exports.getChatRecord = catchAsync(async (req, res) => {
   const loginUserEmail = req.user.email;
   const loginUserAvatar = req.user.avatar;
-  const loginUserInfo = [loginUserEmail, loginUserAvatar];
+  const loginUserId = req.user._id;
+  const loginUserInfo = [loginUserEmail, loginUserAvatar, loginUserId];
   const results = await ChatHistory.find({
     participants: {
       $in: [req.user._id],
@@ -125,7 +127,8 @@ exports.setAllMesgRead = catchAsync(async (req, res) => {
       },
     }
   );
-  console.log("result:", result);
+  // console.log("result:", result);
+  // console.log("req.body:", req.body.FriendInfo);
   if (result) {
     return res.status(200).json({
       message: "All messages are read",
