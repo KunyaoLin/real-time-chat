@@ -36,6 +36,7 @@ exports.sendFriendreq = catchAsync(async (req, res) => {
     try {
       const newFriendReq = await FriendReq.create({
         senderEmail: currentUser.email,
+        senderId: req.user._id,
         receiverEmail: searchFri.email,
       });
       if (newFriendReq)
@@ -65,11 +66,15 @@ exports.getAllFriendsReq = catchAsync(async (req, res, next) => {
   const allReq = await FriendReq.find({
     receiverEmail: req.user.email,
     status: "pending",
-  });
+  }).populate("senderId");
+  console.log("allReq:", allReq);
+
   if (!allReq || allReq.length === 0)
     return res.status(200).json({
       message: "No friend request found",
+      data: {},
     });
+
   res.status(200).json({
     status: "success",
     message: "Friend request found",
@@ -292,5 +297,40 @@ exports.unblockFriend = catchAsync(async (req, res) => {
       message: err,
     });
   }
+});
+exports.searchFriend = catchAsync(async (req, res) => {
+  const { query } = req.query;
+  if (!query) {
+    return res.status(400).json({ error: "Query parameter is required" });
+  }
+  const userFound = await User.find({
+    username: query,
+  });
+  console.log("userFound", userFound);
+  if (userFound.length === 0) {
+    return res.status(500).json({
+      data: {
+        message: "Account not exist",
+      },
+    });
+  }
+  const relationship = await Friends.find({
+    friends: {
+      $all: [req.user._id, userFound[0]._id],
+    },
+    status: "blocked",
+  });
+  if (relationship.length > 0) {
+    return res.status(200).json({
+      data: {
+        message: "Search error, you are blocked by this email!",
+      },
+    });
+  }
+
+  res.status(200).json({
+    message: "success",
+    data: userFound,
+  });
 });
 exports.getMe = (req, res, next) => {};

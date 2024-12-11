@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { showAlert } from "../ult/alert";
 import { useGlobalContext } from "../context/globalContext";
 import NotificationPopUp from "./notificationPopUp";
+import AddFriends from "./addFriends";
 const URL = process.env.REACT_APP_SERVER_URL;
 let newSocket;
 
@@ -143,30 +144,20 @@ function Dashboard() {
             }}
           >
             <div>
+              <AddFriends />
+            </div>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignContent: "center",
+              zIndex: "9999",
+            }}
+          >
+            <div>
               <NotificationPopUp />
             </div>
-            {/* <div style={{ position: "relative", display: "inline-block" }}>
-              <FaRegBell style={{ color: "white", fontSize: "30px" }} />
-              <span
-                style={{
-                  position: "absolute",
-                  top: "-5px",
-                  right: "-5px",
-                  backgroundColor: "red",
-                  color: "white",
-                  borderRadius: "50%",
-                  width: "16px",
-                  height: "16px",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  fontSize: "10px",
-                  fontWeight: "bold",
-                }}
-              >
-                3
-              </span>
-            </div> */}
           </div>
         </div>
 

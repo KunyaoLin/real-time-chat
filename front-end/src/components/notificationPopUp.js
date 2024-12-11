@@ -5,12 +5,13 @@ import { FaRegBell } from "react-icons/fa";
 
 import ContactIcon from "./contactIcon";
 import { useGlobalContext } from "../context/globalContext";
+import FriendReqIcon from "./friendReqIcon";
 
 function NotificationPopUp() {
   const [visiable, setVisiable] = useState(false);
   const [animateout, setAnimateout] = useState(false);
   const popUpRef = useRef(null);
-  const { friends } = useGlobalContext();
+  const { allFriendsReq } = useGlobalContext();
 
   const handleAnimate = () => {
     setAnimateout(true);
@@ -57,18 +58,16 @@ function NotificationPopUp() {
           className={`bellpopUp ${animateout ? "hidden" : "active"} space-y-1`}
           ref={popUpRef}
         >
-          {friends?.map((el) => {
+          {allFriendsReq?.map((el) => {
             return (
-              <ContactIcon
-                name={el.username}
-                online={el.onlineStatus}
-                key={el.username}
-                avatar={el.avatar}
+              <FriendReqIcon
+                name={el.senderId.username}
+                online={el.senderId.onlineStatus}
+                key={el.senderId.username}
+                avatar={el.senderId.avatar}
               />
             );
           })}
-          {/* <ContactIcon name={name} online={online1} />
-          <ContactIcon name={name} online={online2} /> */}
         </div>
       )}
     </div>

@@ -14,7 +14,7 @@ const FriendsSchema = new mongoose.Schema(
     ],
     status: {
       type: String,
-      enum: ["actived", "Blocked"],
+      enum: ["actived", "blocked"],
       default: "actived",
     },
     createAt: {

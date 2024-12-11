@@ -82,7 +82,6 @@ function Login() {
           display: "flex",
           alignItems: "center",
         }}
-        //把框框设置成包含两个的内容，左边是登陆，右边的对话动画
       >
         <form onSubmit={handleSubmit}>
           <Card

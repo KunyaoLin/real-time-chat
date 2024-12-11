@@ -13,6 +13,11 @@ const FriendReqSchema = new mongoose.Schema(
       required: [true, "Need a receiver Email address"],
       match: [/^\S+@\S+\.\S+$/, "Please enter a valid receiver email address"],
     },
+    senderId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "User",
+    }, //明天修改下所有关于friendreq的 因为我加了receiverId
     status: {
       type: String,
       required: [true, "Friend relationship need a status"],

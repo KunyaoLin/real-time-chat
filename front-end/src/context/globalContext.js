@@ -105,7 +105,7 @@ const GlobalContextProvider = ({ children }) => {
         withCredentials: true,
       });
       console.log("result:", result);
-      if (result) {
+      if (Object.keys(result.data.data).length !== 0) {
         dispatch({
           type: "getAllFriendsReq",
           payload: result.data.data.allReq,
