@@ -3,16 +3,19 @@ import { MdOutlinePersonSearch } from "react-icons/md";
 import { useGlobalContext } from "../context/globalContext";
 import { PiSpinnerGapBold } from "react-icons/pi";
 import axios from "axios";
+import SearchFriendIcon from "./searchFriendIcon";
+import { CiSearch } from "react-icons/ci";
+import { IoMdSearch } from "react-icons/io";
 const URL = process.env.REACT_APP_SERVER_URL;
 
 function AddFriends() {
   const [visiable, setVisiable] = useState(false);
   const [animateout, setAnimateout] = useState(false);
   const [input, setInput] = useState("");
-  const [searchResult, setSearchResult] = useState([]);
+  const [searchResult, setSearchResult] = useState({});
   const [loading, SetLoading] = useState(false);
   const popUpRef = useRef(null);
-  const { allFriendsReq } = useGlobalContext();
+  const { Me, friends } = useGlobalContext();
 
   const handleInput = (e) => {
     setInput(e.target.value);
@@ -77,11 +80,13 @@ function AddFriends() {
   useEffect(() => {
     if (input.trim() !== "") {
       debounceSearch(input);
+      console.log("input", input);
     } else {
-      setSearchResult([]);
+      setSearchResult({});
     }
   }, [debounceSearch, input]);
   console.log("searchResult", searchResult);
+  // console.log("searchResult.length :", searchResult.length);
   return (
     <div
       style={{
@@ -100,15 +105,66 @@ function AddFriends() {
           } space-y-1`}
           ref={popUpRef}
         >
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Input email address..."
-              value={input}
-              onChange={handleInput}
-              //   value={searchTerm}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
-            />
+          <div className="relative flex flex-col space-y-1">
+            <div className="relative w-full">
+              <IoMdSearch className="absolute top-1 left-1 text-4xl" />
+              <input
+                type="text"
+                placeholder="Search by name..."
+                value={input}
+                onChange={handleInput}
+                //   value={searchTerm}
+                className="w-full px-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
+              ></input>
+            </div>
+
+            <div>
+              {loading ? (
+                <PiSpinnerGapBold />
+              ) : (
+                <div className="pt-1">
+                  {searchResult?.data?.message === "success" ? (
+                    <div className="flex space-y-1 flex-col">
+                      {searchResult.data.data.userFound.map((el) => {
+                        const checkBlock = el.blockList.filter((e) => {
+                          return e.username === Me.username;
+                        });
+                        if (checkBlock.length > 0) {
+                          return (
+                            <div>
+                              <p>You are block by this account</p>
+                            </div>
+                          );
+                        }
+                        const friendExist = friends.filter((t) => {
+                          return t.email === el.email;
+                        });
+                        if (friendExist.length !== 0) {
+                          return (
+                            <SearchFriendIcon
+                              key={el._id}
+                              avatar={el.avatar}
+                              name={el.username}
+                              addSuccess={true}
+                            ></SearchFriendIcon>
+                          );
+                        } else {
+                          return (
+                            <SearchFriendIcon
+                              key={el._id}
+                              avatar={el.avatar}
+                              name={el.username}
+                            ></SearchFriendIcon>
+                          );
+                        }
+                      })}
+                    </div>
+                  ) : (
+                    <div>No user Found</div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -116,3 +172,40 @@ function AddFriends() {
   );
 }
 export default AddFriends;
+
+// {Object.keys(searchResult).length !== 0 ? (
+//   <div>
+//     {searchResult.data.message === "success" ? (
+//       <div>
+//         <SearchFriendIcon
+//           avatar={searchResult.data.data.userFound[0].avatar}
+//           name={searchResult.data.data.userFound[0].username}
+//           // addSuccess={true}
+//         />
+//       </div>
+//     ) : (
+//       <div>
+//         {searchResult.data.message ===
+//         "He/She is already your friend" ? (
+//           <SearchFriendIcon
+//             avatar={
+//               searchResult.data.data.userFound[0].avatar
+//             }
+//             name={
+//               searchResult.data.data.userFound[0].username
+//             }
+//             addSuccess={true}
+//           />
+//         ) : (
+//           <p>{searchResult.data.message}</p>
+//         )}
+//         {/* <p>{searchResult.data.message}</p> */}
+//       </div>
+//     )}
+//   </div>
+// ) : (
+//   // <div>{searchResult.data.message}</div>
+//   <div>
+//     <span>No User Found</span>
+//   </div>
+// )}

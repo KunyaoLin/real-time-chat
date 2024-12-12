@@ -305,7 +305,7 @@ function Main({ newSocket }) {
                   );
                 })
             ) : (
-              <div>no user found</div>
+              <div>Start your first chat!</div>
             )}
           </div>
           {openChat ? (

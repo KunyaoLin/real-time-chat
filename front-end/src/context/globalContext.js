@@ -7,6 +7,7 @@ const initialState = {
   numUnreadMegs: 0,
   friends: [],
   allFriendsReq: [],
+  Me: {},
 };
 
 function reducer(state, action) {
@@ -19,6 +20,8 @@ function reducer(state, action) {
       return { ...state, friends: action.payload };
     case "getAllFriendsReq":
       return { ...state, allFriendsReq: action.payload };
+    case "getMe":
+      return { ...state, Me: action.payload };
     default:
       throw new Error("unknow action");
   }
@@ -26,8 +29,10 @@ function reducer(state, action) {
 
 const GlobalContext = createContext();
 const GlobalContextProvider = ({ children }) => {
-  const [{ isAuthenticated, numUnreadMegs, friends, allFriendsReq }, dispatch] =
-    useReducer(reducer, initialState);
+  const [
+    { isAuthenticated, numUnreadMegs, friends, allFriendsReq, Me },
+    dispatch,
+  ] = useReducer(reducer, initialState);
 
   function editAuthenticated(type) {
     dispatch({
@@ -87,7 +92,7 @@ const GlobalContextProvider = ({ children }) => {
             ? 1
             : -1;
         });
-        console.log("friendsList:", friendsList);
+        // console.log("friendsList:", friendsList);
 
         dispatch({
           type: "getAllFriendsInfo",
@@ -104,7 +109,7 @@ const GlobalContextProvider = ({ children }) => {
         method: "GET",
         withCredentials: true,
       });
-      console.log("result:", result);
+      // console.log("result:", result);
       if (Object.keys(result.data.data).length !== 0) {
         dispatch({
           type: "getAllFriendsReq",
@@ -114,8 +119,25 @@ const GlobalContextProvider = ({ children }) => {
     }
     getFriendReq();
   }, []);
-  console.log("allFriendsReq:", allFriendsReq);
-
+  useEffect(() => {
+    async function getMe() {
+      const result = await axios({
+        url: `${URL}/api/auth`,
+        method: "GET",
+        withCredentials: true,
+      });
+      if (result) {
+        dispatch({
+          type: "getMe",
+          payload: result.data.currentUser,
+        });
+      }
+    }
+    getMe();
+  }, []);
+  // console.log("allFriendsReq:", allFriendsReq);
+  // console.log("MeMeMeMeMeMe:", Me);
+  // console.log("friends", friends);
   return (
     <GlobalContext.Provider
       value={{
@@ -126,6 +148,7 @@ const GlobalContextProvider = ({ children }) => {
         editUnReadMegsNum,
         editUnReadMegsBySend,
         allFriendsReq,
+        Me,
       }}
     >
       {children}

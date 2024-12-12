@@ -208,7 +208,18 @@ exports.getAllFriends = catchAsync(async (req, res, next) => {
     const FriendsContact = FriendList.map((el) => {
       const result = el.friends.filter((el) => el.email !== req.user.email);
       console.log("result", result);
-      return { ...el, friends: result };
+      // console.log("el.blcok:", el.blockd_by !== null);
+      // console.log("el.blcok:", el.blockd_by !== req.user.email);
+      console.log(
+        "result2222222",
+        el.blockd_by !== null && el.blockd_by !== req.user.email
+      );
+      // if (el.blockd_by !== null && el.blockd_by !== req.user.email) {
+      //   return {};
+      // } else {
+      //   return { ...el, friends: result };
+      // }
+      // return { ...el, friends: result };
     });
     console.log("FriendsContact", FriendsContact);
     res.status(200).json({
@@ -226,6 +237,19 @@ exports.blockFriend = catchAsync(async (req, res) => {
       email: req.body.blockEmail,
     });
     if (blockAcc) {
+      const checkBlockList = await User.find({
+        email: req.user.email,
+        blockList: {
+          $in: [blockAcc._id],
+        },
+      });
+      if (checkBlockList.length > 0) {
+        return res.status(200).json({
+          message: "This account is on your block list",
+          data: { checkBlockList },
+        });
+      }
+
       const blockResult = await Friends.findOneAndUpdate(
         {
           friends: {
@@ -237,11 +261,20 @@ exports.blockFriend = catchAsync(async (req, res) => {
           blockd_by: `${req.user.email}`,
         }
       );
+      await User.findOneAndUpdate(
+        {
+          email: req.user.email,
+        },
+        {
+          blockList: [...req.user.blockList, blockAcc._id],
+        }
+      );
       console.log(blockResult);
       if (!blockResult) throw new Error("Block friend error");
       res.status(200).json({
         status: "success",
         message: "block friend success",
+        // data: { checkBlockList, length: checkBlockList.length },
       });
     }
     if (!blockAcc)
@@ -261,18 +294,6 @@ exports.unblockFriend = catchAsync(async (req, res) => {
     });
     if (unblockAcc) {
       const unblockResult = await Friends.findOneAndUpdate(
-        // {
-        //   $and: [
-        //     {
-        //       friends: {
-        //         $all: [`${req.user.email}`, `${req.body.unblockEmail}`],
-        //       },
-        //     },
-        //     {
-        //       status: "blocked",
-        //     },
-        //   ],
-        // },
         {
           friends: {
             $all: [req.user._id, unblockAcc._id],
@@ -284,14 +305,31 @@ exports.unblockFriend = catchAsync(async (req, res) => {
           blockd_by: null,
         }
       );
-      if (!unblockResult) throw new Error("block friend error");
+      const unblock = await User.findOneAndUpdate(
+        {
+          email: req.user.email,
+        },
+        {
+          blockList: req.user.blockList.filter((el) => {
+            return !el.equals(unblockAcc._id);
+          }),
+        }
+      );
+      console.log("unblockResult:", unblockResult);
+      if (unblockResult === null) {
+        return res.status(200).json({
+          message: "This account is unblock by you",
+        });
+      }
       console.log("unblockResult", unblockResult);
 
       res.status(200).json({
         status: "success",
         message: "unblock friend success",
+        data: { unblock },
       });
     }
+    if (!unblockAcc) throw new Error("unblock error");
   } catch (err) {
     res.status(500).json({
       message: err,
@@ -301,36 +339,47 @@ exports.unblockFriend = catchAsync(async (req, res) => {
 exports.searchFriend = catchAsync(async (req, res) => {
   const { query } = req.query;
   if (!query) {
-    return res.status(400).json({ error: "Query parameter is required" });
+    return res.status(200).json({ message: "Query parameter is required" });
   }
   const userFound = await User.find({
     username: query,
-  });
+  }).populate("blockList");
   console.log("userFound", userFound);
   if (userFound.length === 0) {
-    return res.status(500).json({
-      data: {
-        message: "Account not exist",
-      },
-    });
-  }
-  const relationship = await Friends.find({
-    friends: {
-      $all: [req.user._id, userFound[0]._id],
-    },
-    status: "blocked",
-  });
-  if (relationship.length > 0) {
     return res.status(200).json({
-      data: {
-        message: "Search error, you are blocked by this email!",
-      },
+      message: "No User Found",
+      data: {},
     });
   }
+  // const relationship = await Friends.find({
+  //   friends: {
+  //     $all: [req.user._id, userFound[0]._id],
+  //   },
+  // });
+  // if (relationship.length !== 0) {
+  //   if (relationship[0].status === "blocked") {
+  //     return res.status(200).json({
+  //       message: "Search error, you are blocked by this account!",
+  //       data: { relationship },
+  //     });
+  //   }
+  //   res.status(200).json({
+  //     message: "He/She is already your friend",
+  //     data: { userFound },
+  //   });
+  // }
+  // if (relationship) {
+  //   return res.status(200).json({
+  //     message: "Search error, you are blocked by this account!",
+  //     data: { relationship },
+  //   });
+  // }
 
   res.status(200).json({
     message: "success",
-    data: userFound,
+    data: {
+      userFound,
+    },
   });
 });
 exports.getMe = (req, res, next) => {};

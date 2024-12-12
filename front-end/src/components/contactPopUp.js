@@ -9,7 +9,7 @@ function ContactPopUp() {
   const [animateout, setAnimateout] = useState(false);
   const popUpRef = useRef(null);
   const { friends } = useGlobalContext();
-
+  console.log("friends", friends);
   const handleAnimate = () => {
     setAnimateout(true);
     setTimeout(() => {
@@ -63,7 +63,7 @@ function ContactPopUp() {
               <ContactIcon
                 name={el.username}
                 online={el.onlineStatus}
-                key={el.username}
+                key={el._id}
                 avatar={el.avatar}
               />
             );

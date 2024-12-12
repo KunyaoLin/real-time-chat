@@ -17,7 +17,7 @@ const FriendReqSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       required: true,
       ref: "User",
-    }, //明天修改下所有关于friendreq的 因为我加了receiverId
+    },
     status: {
       type: String,
       required: [true, "Friend relationship need a status"],

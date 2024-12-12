@@ -2,6 +2,7 @@ const moongoose = require("mongoose");
 const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const validator = require("validator");
+const { default: mongoose } = require("mongoose");
 //bcrypt => password, crypto=>token
 
 const userSchema = new moongoose.Schema(
@@ -55,7 +56,7 @@ const userSchema = new moongoose.Schema(
     passwordResetToken: String,
 
     passwordResetExpires: Date,
-
+    blockList: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     active: {
       type: Boolean,
       select: false,

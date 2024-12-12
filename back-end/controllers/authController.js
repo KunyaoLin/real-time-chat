@@ -157,6 +157,7 @@ exports.isLoggedIn = catchAsync(async (req, res, next) => {
         status: "success",
         message: "Authenticated",
         userEmail: currentUser.email,
+        currentUser,
         user: decode,
       });
     } catch (err) {
