@@ -61,15 +61,13 @@ function ContactPopUp() {
           {friends?.map((el) => {
             return (
               <ContactIcon
-                name={el.username}
-                online={el.onlineStatus}
-                key={el._id}
-                avatar={el.avatar}
+                name={el.friends[0].username}
+                online={el.friends[0].onlineStatus}
+                key={el.friends[0]._id}
+                avatar={el.friends[0].avatar}
               />
             );
           })}
-          {/* <ContactIcon name={name} online={online1} />
-          <ContactIcon name={name} online={online2} /> */}
         </div>
       )}
     </div>

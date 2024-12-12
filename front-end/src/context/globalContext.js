@@ -3,7 +3,6 @@ import React, { createContext, useContext, useEffect, useReducer } from "react";
 const URL = process.env.REACT_APP_SERVER_URL;
 
 const initialState = {
-  isAuthenticated: false,
   numUnreadMegs: 0,
   friends: [],
   allFriendsReq: [],
@@ -12,8 +11,6 @@ const initialState = {
 
 function reducer(state, action) {
   switch (action.type) {
-    case "editAuthenticated":
-      return { ...state, isAuthenticated: action.payload };
     case "getAllUnreadMegs":
       return { ...state, numUnreadMegs: state.numUnreadMegs + action.payload };
     case "getAllFriendsInfo":
@@ -29,17 +26,11 @@ function reducer(state, action) {
 
 const GlobalContext = createContext();
 const GlobalContextProvider = ({ children }) => {
-  const [
-    { isAuthenticated, numUnreadMegs, friends, allFriendsReq, Me },
-    dispatch,
-  ] = useReducer(reducer, initialState);
+  const [{ numUnreadMegs, friends, allFriendsReq, Me }, dispatch] = useReducer(
+    reducer,
+    initialState
+  );
 
-  function editAuthenticated(type) {
-    dispatch({
-      type: "editAuthenticated",
-      payload: type === "login" ? true : false,
-    });
-  }
   function editUnReadMegsNum(num) {
     dispatch({
       type: "getAllUnreadMegs",
@@ -83,8 +74,9 @@ const GlobalContextProvider = ({ children }) => {
           withCredentials: true,
         });
         if (!res) throw new Error("get friends info error");
-        const friendsList = res.data.data.FriendsContact.map((el) => {
-          return el.friends[0];
+        console.log("ressssss", res);
+        const friendsList = res.data.data.FriendsContact.filter((el) => {
+          return el.friends.length !== 0;
         }).sort((a, b) => {
           return b.onlineStatus === a.onlineStatus
             ? 0
@@ -122,14 +114,14 @@ const GlobalContextProvider = ({ children }) => {
   useEffect(() => {
     async function getMe() {
       const result = await axios({
-        url: `${URL}/api/auth`,
+        url: `${URL}/getMe`,
         method: "GET",
         withCredentials: true,
       });
       if (result) {
         dispatch({
           type: "getMe",
-          payload: result.data.currentUser,
+          payload: result.data.data.currentUser,
         });
       }
     }
@@ -141,9 +133,7 @@ const GlobalContextProvider = ({ children }) => {
   return (
     <GlobalContext.Provider
       value={{
-        isAuthenticated,
         friends,
-        editAuthenticated,
         numUnreadMegs,
         editUnReadMegsNum,
         editUnReadMegsBySend,

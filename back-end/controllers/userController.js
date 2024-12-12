@@ -207,18 +207,18 @@ exports.getAllFriends = catchAsync(async (req, res, next) => {
     console.log("FriendList", FriendList);
     const FriendsContact = FriendList.map((el) => {
       const result = el.friends.filter((el) => el.email !== req.user.email);
-      console.log("result", result);
+      // console.log("result", result);
       // console.log("el.blcok:", el.blockd_by !== null);
-      // console.log("el.blcok:", el.blockd_by !== req.user.email);
-      console.log(
-        "result2222222",
-        el.blockd_by !== null && el.blockd_by !== req.user.email
-      );
-      // if (el.blockd_by !== null && el.blockd_by !== req.user.email) {
-      //   return {};
-      // } else {
-      //   return { ...el, friends: result };
-      // }
+      // console.log("ellllll", el);
+      // console.log(
+      //   "result2222222",
+      //   el.blockd_by !== null && el.blockd_by !== req.user.email
+      // );
+      if (el.blockd_by !== null && el.blockd_by !== req.user.email) {
+        return { ...el, friends: [] };
+      } else {
+        return { ...el, friends: result };
+      }
       // return { ...el, friends: result };
     });
     console.log("FriendsContact", FriendsContact);
@@ -382,4 +382,14 @@ exports.searchFriend = catchAsync(async (req, res) => {
     },
   });
 });
-exports.getMe = (req, res, next) => {};
+exports.getMe = catchAsync(async (req, res) => {
+  const currentUser = await User.find({
+    email: req.user.email,
+  });
+  res.status(200).json({
+    message: "success",
+    data: {
+      currentUser,
+    },
+  });
+});

@@ -10,28 +10,25 @@ import ProtectRoute from "./ult/protectRoute";
 import { GlobalContextProvider } from "./context/globalContext";
 function App() {
   return (
-    <GlobalContextProvider>
-      <BrowserRouter future={{ v7_startTransition: true }}>
-        <Routes>
-          <Route path="*" element={<Navigate to="/login" replace />}></Route>
-          <Route path="/login" element={<Login />}></Route>
-          <Route path="/signup" element={<Signup />}></Route>
-          <Route path="/forgetPassword" element={<ForgetPassword />}></Route>
-          <Route
-            path="/resetPassword/:token"
-            element={<ResetPassword />}
-          ></Route>
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectRoute>
+    <BrowserRouter future={{ v7_startTransition: true }}>
+      <Routes>
+        <Route path="*" element={<Navigate to="/login" replace />}></Route>
+        <Route path="/login" element={<Login />}></Route>
+        <Route path="/signup" element={<Signup />}></Route>
+        <Route path="/forgetPassword" element={<ForgetPassword />}></Route>
+        <Route path="/resetPassword/:token" element={<ResetPassword />}></Route>
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectRoute>
+              <GlobalContextProvider>
                 <Dashboard />
-              </ProtectRoute>
-            }
-          ></Route>
-        </Routes>
-      </BrowserRouter>
-    </GlobalContextProvider>
+              </GlobalContextProvider>
+            </ProtectRoute>
+          }
+        ></Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 

@@ -11,13 +11,12 @@ import {
 import { useNavigate } from "react-router-dom";
 import Logo from "./logo";
 import { showAlert } from "../ult/alert";
-import { useGlobalContext } from "../context/globalContext";
 const URL = process.env.REACT_APP_SERVER_URL;
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const { editAuthenticated } = useGlobalContext();
+  // const { editAuthenticated } = useGlobalContext();
   const handEmailChange = (e) => {
     setEmail(e.target.value);
   };
@@ -43,7 +42,6 @@ function Login() {
       });
       if (res.data.status === "success") {
         showAlert("success", "login successfully");
-        editAuthenticated("login");
         setEmail("");
         setPassword("");
         window.setTimeout(() => {

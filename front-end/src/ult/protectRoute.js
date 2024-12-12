@@ -19,7 +19,9 @@ function ProtectRoute({ children }) {
           url: `${URL}/api/auth`,
           withCredentials: true,
         });
+        // console.log("resssss", res);
         if (isMounted && res.data.status === "success") {
+          console.log("success login rn");
           navigate("/dashboard");
         }
       } catch (err) {
