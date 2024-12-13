@@ -7,14 +7,18 @@ import {
 } from "react-icons/io";
 import { BsSendCheck } from "react-icons/bs";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
-import { FaBullseye } from "react-icons/fa";
+import { useGlobalContext } from "../context/globalContext";
 const URL = process.env.REACT_APP_SERVER_URL;
 
 function AddFriendIcon(props) {
   const [isClick, setClick] = useState(false);
   const [sendReq, setSendReq] = useState(false);
-  const [loading, setLoading] = useState(FaBullseye);
+  const [loading, setLoading] = useState(false);
+  const [friReq, setFriReq] = useState([]);
+  const [checkSend, setCheckSend] = useState([]);
+  const { Me } = useGlobalContext();
   const email = props.email;
+  const myEmail = Me[0].email;
   const handleClick = () => {
     setClick(true);
     setSendReq(true);
@@ -34,6 +38,13 @@ function AddFriendIcon(props) {
           },
           withCredentials: true,
         });
+        if (result.data.status === "success") {
+          setCheckSend((prev) => ({
+            ...prev,
+            status: "pending",
+          }));
+        }
+
         console.log("result", result);
       } catch (err) {
         console.log("err", err);
@@ -44,6 +55,26 @@ function AddFriendIcon(props) {
     }
     if (sendReq) sendFriendReq();
   }, [sendReq, email]);
+  useEffect(() => {
+    async function checkReqExist() {
+      try {
+        const result = await axios({
+          url: `${URL}/friends/checkReq`,
+          method: "POST",
+          data: {
+            me: myEmail,
+            target: email,
+          },
+          withCredentials: true,
+        });
+        setCheckSend(result.data);
+        // console.log("result", result);
+      } catch (err) {}
+    }
+    checkReqExist();
+  }, [myEmail, email]);
+  // console.log("friReq", friReq);
+  console.log("checkSend", checkSend);
   return (
     <div className="flex bg-slate-100  rounded-lg p-1">
       <span>
@@ -60,26 +91,7 @@ function AddFriendIcon(props) {
           {props.name}
         </p>
         <div className="flex flex-row w-20 space-x-2">
-          {!props.addSuccess ? (
-            loading ? (
-              <AiOutlineLoading3Quarters className="animate-spin" />
-            ) : (
-              <button
-                className={`transition-transform duration-100 ${
-                  isClick ? "scale-90" : "scale-110"
-                }`}
-                onClick={handleClick}
-              >
-                <IoIosAddCircleOutline
-                  className="hover:scale-125 transition-transform duration-200"
-                  style={{
-                    color: "#66bb6a",
-                    fontSize: "30px",
-                  }}
-                />
-              </button>
-            )
-          ) : (
+          {props.addSuccess ? (
             <IoMdCheckmarkCircleOutline
               className="transition-transform duration-200"
               style={{
@@ -87,6 +99,30 @@ function AddFriendIcon(props) {
                 fontSize: "30px",
               }}
             />
+          ) : loading ? (
+            <AiOutlineLoading3Quarters className="animate-spin" />
+          ) : checkSend.status === "pending" ? (
+            <BsSendCheck
+              style={{
+                color: "#66bb6a",
+                fontSize: "25px",
+              }}
+            />
+          ) : (
+            <button
+              className={`transition-transform duration-100 ${
+                isClick ? "scale-90" : "scale-110"
+              }`}
+              onClick={handleClick}
+            >
+              <IoIosAddCircleOutline
+                className="hover:scale-125 transition-transform duration-200"
+                style={{
+                  color: "#66bb6a",
+                  fontSize: "30px",
+                }}
+              />
+            </button>
           )}
         </div>
       </div>

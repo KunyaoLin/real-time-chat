@@ -8,29 +8,21 @@ exports.sendFriendreq = catchAsync(async (req, res) => {
   const searchFri = await User.findOne({ email: req.body.receiverEmail });
   //check received Email whether is a friend or not
   if (searchFri) {
-    const checkFriend = await Friends.find({
-      friends: {
-        $all: [`${req.user._id}`, `${searchFri._id}`],
-      },
-    });
-    if (checkFriend.status === "blocked")
-      return res.status(401).json({
-        message: "Send friend request error, You was blocked by this email",
-      });
-    if (checkFriend.length !== 0)
-      return res.status(200).json({
-        message: "This user is already your friend",
-      });
-    console.log("checkFriend", checkFriend, checkFriend.length);
-    const friReq = await FriendReq.findOne({
-      receiverEmail: req.body.receiverEmail,
-      status: "pending",
-    });
-    if (friReq)
-      return res.status(200).json({
-        message:
-          "You already send friend request to this email account! please wait for response from your friend.",
-      });
+    // const checkFriend = await Friends.find({
+    //   friends: {
+    //     $all: [`${req.user._id}`, `${searchFri._id}`],
+    //   },
+    // });
+    // if (checkFriend.status === "blocked")
+    //   return res.status(401).json({
+    //     message: "Send friend request error, You was blocked by this email",
+    //   });
+    // if (checkFriend.length !== 0)
+    //   return res.status(200).json({
+    //     message: "This user is already your friend",
+    //   });
+    // console.log("checkFriend", checkFriend, checkFriend.length);
+
     const currentUser = req.user;
 
     try {
@@ -61,6 +53,47 @@ exports.sendFriendreq = catchAsync(async (req, res) => {
   //     status: "error",
   //     message: "User not Found or inactive",
   //   });
+});
+exports.checkFriReq = catchAsync(async (req, res) => {
+  const friReq = await FriendReq.find({
+    // senderEmail: `${req.body.receiverEmail}`,
+    $or: [
+      {
+        receiverEmail: req.body.me,
+        senderEmail: req.body.target,
+      },
+      {
+        receiverEmail: req.body.target,
+        senderEmail: req.body.me,
+      },
+    ],
+  });
+  // console.log("memememe", req.body.me);
+  // console.log("friReqfriReqfriReq", friReq);
+  if (friReq.length === 0) {
+    return res.status(200).json({
+      status: "noneSend",
+      data: { friReq },
+    });
+  }
+  if (friReq[0].status === "pending") {
+    return res.status(200).json({
+      status: "pending",
+      message:
+        "You already send friend request to this email account! please wait for response from your friend.",
+      data: { friReq },
+    });
+  } else if (friReq[0].status === "accepted") {
+    return res.status(200).json({
+      status: "accepted",
+      data: { friReq },
+    });
+  } else {
+    res.status(200).json({
+      status: friReq.status,
+      data: { friReq },
+    });
+  }
 });
 exports.getAllFriendsReq = catchAsync(async (req, res, next) => {
   const allReq = await FriendReq.find({

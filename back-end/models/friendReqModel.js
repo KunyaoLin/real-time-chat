@@ -37,10 +37,10 @@ const FriendReqSchema = new mongoose.Schema(
   },
   { versionKey: false }
 );
-//revoke friend request
+// revoke friend request
 FriendReqSchema.pre(/^find/, async function (next) {
   this.find({
-    createAt: { $gt: Date.now() - 24 * 60 * 60 * 1000 },
+    createAt: { $gt: Date.now() - 24 * 7 * 60 * 60 * 1000 },
   });
   next();
 });

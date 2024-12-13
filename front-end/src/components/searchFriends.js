@@ -148,6 +148,7 @@ function SearchFriend() {
                               key={el._id}
                               avatar={el.avatar}
                               name={el.username}
+                              email={el.email}
                               addSuccess={true}
                             ></AddFriendIcon>
                           );

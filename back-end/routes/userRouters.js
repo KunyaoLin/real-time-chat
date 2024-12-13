@@ -19,6 +19,8 @@ userRoute
   .route("/friends/request")
   .post(userController.sendFriendreq)
   .get(userController.getAllFriendsReq);
+
+userRoute.route("/friends/checkReq").post(userController.checkFriReq);
 userRoute.route("/friends/search").get(userController.searchFriend);
 userRoute.route("/friends/request/accept").patch(userController.acceptFriend);
 userRoute.route("/friends/request/delete").patch(userController.deleteFriend);
