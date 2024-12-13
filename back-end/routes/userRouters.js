@@ -23,6 +23,10 @@ userRoute
 userRoute.route("/friends/checkReq").post(userController.checkFriReq);
 userRoute.route("/friends/search").get(userController.searchFriend);
 userRoute.route("/friends/request/accept").patch(userController.acceptFriend);
+userRoute
+  .route("/friends/request/reject")
+  .patch(userController.rejectFriendReq);
+
 userRoute.route("/friends/request/delete").patch(userController.deleteFriend);
 
 userRoute.route("/getMe").get(authController.protectTo, userController.getMe);

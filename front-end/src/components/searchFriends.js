@@ -68,6 +68,7 @@ function SearchFriend() {
     const handleGlobalPopUp = (e) => {
       if (popUpRef.current && !popUpRef.current.contains(e.target)) {
         handleAnimate();
+        setInput("");
       }
     };
 
@@ -84,9 +85,9 @@ function SearchFriend() {
       setSearchResult({});
     }
   }, [debounceSearch, input]);
-  console.log("searchResult", searchResult);
-  console.log("ME", Me);
-  console.log("friends", friends);
+  // console.log("searchResult", searchResult);
+  // console.log("ME", Me);
+  // console.log("friends", friends);
   // console.log("searchResult.length :", searchResult.length);
   return (
     <div
@@ -130,9 +131,14 @@ function SearchFriend() {
                     <div className="flex space-y-1 flex-col">
                       {searchResult.data.data.userFound.map((el) => {
                         const checkBlock = el.blockList.filter((e) => {
+                          console.log("check", e.email === Me[0].email);
+
                           return e.email === Me[0].email;
                         });
-                        if (checkBlock.length > 0) {
+                        if (
+                          checkBlock.length > 0 &&
+                          checkBlock[0].email === Me[0].email
+                        ) {
                           return (
                             <div>
                               <p>You are block by this account</p>
@@ -142,7 +148,10 @@ function SearchFriend() {
                         const friendExist = friends.filter((t) => {
                           return t.friends[0].email === el.email;
                         });
-                        if (friendExist.length !== 0) {
+                        if (
+                          friendExist.length !== 0 ||
+                          el.email === Me[0].email
+                        ) {
                           return (
                             <AddFriendIcon
                               key={el._id}
@@ -178,40 +187,3 @@ function SearchFriend() {
   );
 }
 export default SearchFriend;
-
-// {Object.keys(searchResult).length !== 0 ? (
-//   <div>
-//     {searchResult.data.message === "success" ? (
-//       <div>
-//         <SearchFriendIcon
-//           avatar={searchResult.data.data.userFound[0].avatar}
-//           name={searchResult.data.data.userFound[0].username}
-//           // addSuccess={true}
-//         />
-//       </div>
-//     ) : (
-//       <div>
-//         {searchResult.data.message ===
-//         "He/She is already your friend" ? (
-//           <SearchFriendIcon
-//             avatar={
-//               searchResult.data.data.userFound[0].avatar
-//             }
-//             name={
-//               searchResult.data.data.userFound[0].username
-//             }
-//             addSuccess={true}
-//           />
-//         ) : (
-//           <p>{searchResult.data.message}</p>
-//         )}
-//         {/* <p>{searchResult.data.message}</p> */}
-//       </div>
-//     )}
-//   </div>
-// ) : (
-//   // <div>{searchResult.data.message}</div>
-//   <div>
-//     <span>No User Found</span>
-//   </div>
-// )}

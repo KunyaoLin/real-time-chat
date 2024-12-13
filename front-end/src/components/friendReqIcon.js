@@ -1,8 +1,53 @@
-import React from "react";
+import React, { useState } from "react";
 import Avatar from "@mui/material/Avatar";
+import axios from "axios";
 import { FaRegCircleCheck } from "react-icons/fa6";
 import { FaRegCircleXmark } from "react-icons/fa6";
+import { useGlobalContext } from "../context/globalContext";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
+const URL = process.env.REACT_APP_SERVER_URL;
 function FriendReqIcon(props) {
+  const [accepting, setAccept] = useState(false);
+  const [rejecting, setReject] = useState(false);
+
+  const { getFriendReq } = useGlobalContext();
+
+  const handleAccept = async () => {
+    try {
+      setAccept(true);
+      const result = await axios({
+        url: `${URL}/friends/request/accept`,
+        method: "PATCH",
+        withCredentials: true,
+        data: {
+          senderEmail: props.senderEmail,
+        },
+      });
+      getFriendReq();
+      console.log("result", result);
+    } catch (err) {
+    } finally {
+      setAccept(false);
+    }
+  };
+  const handleReject = async () => {
+    try {
+      setReject(true);
+      const result = await axios({
+        url: `${URL}/friends/request/reject`,
+        method: "PATCH",
+        withCredentials: true,
+        data: {
+          rejectEmail: props.senderEmail,
+        },
+      });
+      getFriendReq();
+      console.log("result", result);
+    } catch (err) {
+    } finally {
+      setReject(false);
+    }
+  };
   return (
     <div className="flex bg-slate-100  rounded-lg p-1">
       <span className="flex flex-row items-center">
@@ -24,12 +69,24 @@ function FriendReqIcon(props) {
         </div>
 
         <div className="flex flex-row justify-between items-center px-2 w-16">
-          <button>
-            <FaRegCircleCheck style={{ color: "green", fontSize: "20px" }} />
-          </button>
-          <button>
-            <FaRegCircleXmark style={{ color: "grey", fontSize: "20px" }} />
-          </button>
+          {accepting ? (
+            <div>
+              <AiOutlineLoading3Quarters className="animate-spin" />
+            </div>
+          ) : (
+            <button onClick={handleAccept}>
+              <FaRegCircleCheck style={{ color: "green", fontSize: "20px" }} />
+            </button>
+          )}
+          {rejecting ? (
+            <div>
+              <AiOutlineLoading3Quarters className="animate-spin" />
+            </div>
+          ) : (
+            <button onClick={handleReject}>
+              <FaRegCircleXmark style={{ color: "grey", fontSize: "20px" }} />
+            </button>
+          )}
         </div>
       </div>
     </div>

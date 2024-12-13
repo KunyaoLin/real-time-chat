@@ -57,6 +57,7 @@ function AddFriendIcon(props) {
   }, [sendReq, email]);
   useEffect(() => {
     async function checkReqExist() {
+      setLoading(true);
       try {
         const result = await axios({
           url: `${URL}/friends/checkReq`,
@@ -67,9 +68,12 @@ function AddFriendIcon(props) {
           },
           withCredentials: true,
         });
+        console.log("result", result);
         setCheckSend(result.data);
-        // console.log("result", result);
-      } catch (err) {}
+      } catch (err) {
+      } finally {
+        setLoading(false);
+      }
     }
     checkReqExist();
   }, [myEmail, email]);

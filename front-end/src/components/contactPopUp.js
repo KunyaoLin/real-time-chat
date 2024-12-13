@@ -1,5 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
-import MessageInform from "./MessageInform";
+import React, { useEffect, useRef, useState } from "react";
 import { MdAccountBox } from "react-icons/md";
 import ContactIcon from "./contactIcon";
 import { useGlobalContext } from "../context/globalContext";
@@ -9,7 +8,6 @@ function ContactPopUp() {
   const [animateout, setAnimateout] = useState(false);
   const popUpRef = useRef(null);
   const { friends } = useGlobalContext();
-  // console.log("friends", friends);
   const handleAnimate = () => {
     setAnimateout(true);
     setTimeout(() => {
@@ -17,9 +15,9 @@ function ContactPopUp() {
       setVisiable(false);
     }, 300);
   };
+
+  console.log("friends", friends);
   const handlePopUp = () => {
-    // console.log("visiable", visiable);
-    // console.log("animateout", animateout);
     if (visiable) {
       handleAnimate();
     } else {
@@ -61,6 +59,8 @@ function ContactPopUp() {
           {friends?.map((el) => {
             return (
               <ContactIcon
+                handlePopUp={handlePopUp}
+                email={el.friends[0].email}
                 name={el.friends[0].username}
                 online={el.friends[0].onlineStatus}
                 key={el.friends[0]._id}

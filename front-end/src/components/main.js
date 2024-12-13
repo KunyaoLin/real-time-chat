@@ -18,7 +18,7 @@ function Main({ newSocket }) {
   const [currentUserInfo, setCurrentUserInfo] = useState("");
   const bottomRef = useRef(null);
   const { editUnReadMegsNum, editUnReadMegsBySend } = useGlobalContext();
-
+  //need to re write alluserRec, SetallUSerRec,currentUserInfo
   // console.log("allUserRec:", allUserRec);
   const handleChatClick = async (info, allMessages) => {
     let unReadMegs = 0;
@@ -129,6 +129,7 @@ function Main({ newSocket }) {
       isCancel = true;
     };
   }, []);
+
   useEffect(() => {
     let isMount = true;
     if (!newSocket || !isMount) return;
@@ -137,6 +138,7 @@ function Main({ newSocket }) {
         newMessage.senderEmail,
         newMessage.receiverEmail,
       ].sort();
+      //curren open windows is sender's
       if (currentFriInfo.email === newMessage.senderEmail) {
         const messageRead = {
           ...newMessage,
@@ -186,12 +188,13 @@ function Main({ newSocket }) {
           );
           console.log("result:", result);
           if (result) {
+            editUnReadMegsBySend();
+
             return { ...el, messages: [...el.messages, newMessage] };
           }
           return el;
         });
         setAllUserRec(receiveNewRec);
-        editUnReadMegsBySend();
       }
     };
     newSocket.on("receive-message", handleMessage);
@@ -276,6 +279,7 @@ function Main({ newSocket }) {
                   const mins = new Date(
                     el.messages[lastNum].timeStamp
                   ).getMinutes();
+                  console.log("mins", mins);
                   const time = `${hours < 10 ? "0" + hours : hours}:${
                     mins < 10 ? "0" + mins.toString() : mins
                   }`;

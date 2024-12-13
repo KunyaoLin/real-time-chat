@@ -1,10 +1,12 @@
 import React from "react";
 import Avatar from "@mui/material/Avatar";
 import { IoChatboxEllipsesOutline } from "react-icons/io5";
-import { RiDeleteBin6Line } from "react-icons/ri";
 import { TiDeleteOutline } from "react-icons/ti";
 import { SiAdblock } from "react-icons/si";
 function ContactIcon(props) {
+  const handleNewchat = () => {
+    props.handlePopUp();
+  };
   return (
     <div className="flex bg-slate-100 hover:bg-orange-100 rounded-lg p-1">
       <span>
@@ -32,7 +34,7 @@ function ContactIcon(props) {
           {props.name}
         </p>
         <div className="flex flex-row w-20 space-x-2">
-          <button>
+          <button onClick={handleNewchat}>
             <IoChatboxEllipsesOutline />
           </button>
           <button>

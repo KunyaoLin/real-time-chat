@@ -12,6 +12,7 @@ const chatRoute = require("./routes/chatRouters");
 const ChatHistory = require("./models/chatHistoryModel");
 const Friends = require("./models/friendsModel");
 const User = require("./models/userModel");
+const { timeStamp } = require("console");
 dotenv.config({ path: "./config.env" });
 const DB_URL = process.env.DATABASE_URL.replace(
   "<db_password>",
@@ -83,6 +84,7 @@ io.on("connection", (socket) => {
               senderEmail: message.senderEmail,
               receiverEmail: message.receiverEmail,
               message: message.message,
+              timeStamp: message.timeStamp,
             },
           },
         },

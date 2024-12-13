@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { FaRegBell } from "react-icons/fa";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ChatPopUp from "./chatPopUp";
@@ -9,7 +8,6 @@ import Main from "./main";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { showAlert } from "../ult/alert";
-import { useGlobalContext } from "../context/globalContext";
 import NotificationPopUp from "./notificationPopUp";
 import SearchFriend from "./searchFriends";
 const URL = process.env.REACT_APP_SERVER_URL;
@@ -18,13 +16,8 @@ let newSocket;
 function Dashboard() {
   const [socket, setSocket] = useState("");
   const [userEmail, setUserEmail] = useState("");
-  const [unReadMegs, setUnReadMegs] = useState("");
-  // const newSocketRef = useRef(null);
   const navigate = useNavigate();
 
-  // const countUnReadMegs = (num) => {
-  //   setUnReadMegs(num);
-  // };
   const handleExit = async () => {
     const response = await axios({
       method: "POST",
@@ -35,25 +28,17 @@ function Dashboard() {
       showAlert("success", "logout successfully");
       console.log("socket", socket);
       if (newSocket) {
-        console.log("logout rn1");
         newSocket.disconnect();
         setSocket(null);
       }
       setTimeout(() => {
-        console.log("logout rn2");
         navigate("/login");
       }, 1500);
     }
   };
   useEffect(() => {
-    // let newSocket;
-    // console.log("newSocket", newSocket);
     async function ConnectIo() {
       try {
-        // if (socket) {
-        //   console.log("Socket already connected:", socket);
-        //   return;
-        // }
         const res = await axios({
           method: "GET",
           url: `${URL}/api/auth`,
@@ -61,9 +46,6 @@ function Dashboard() {
         });
         const userEmail = res.data.userEmail;
         setUserEmail(userEmail);
-
-        // console.log("socket", socket);
-        // console.log("newSocket", newSocket);
 
         if (res.data.status === "success" && !socket) {
           if (!newSocket) {

@@ -1,4 +1,3 @@
-// import BaseRoom from "./components/baseRoom";
 import Login from "./components/login";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import "./styles.css";

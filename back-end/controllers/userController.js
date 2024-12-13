@@ -61,10 +61,12 @@ exports.checkFriReq = catchAsync(async (req, res) => {
       {
         receiverEmail: req.body.me,
         senderEmail: req.body.target,
+        status: "pending",
       },
       {
         receiverEmail: req.body.target,
         senderEmail: req.body.me,
+        status: "pending",
       },
     ],
   });
@@ -161,12 +163,18 @@ exports.rejectFriendReq = catchAsync(async (req, res) => {
     const friendReq = await FriendReq.findOneAndUpdate(
       {
         senderEmail: `${req.body.rejectEmail}`,
+        receiverEmail: req.user.email,
+        status: "pending",
       },
       {
         status: "rejected",
       }
     );
     if (!friendReq) throw new Error("reject friend request error");
+    return res.status(200).json({
+      status: "rejected",
+      friendReq,
+    });
   } catch (err) {
     return res.status(500).json({
       status: "error",
@@ -230,7 +238,10 @@ exports.deleteFriend = catchAsync(async (req, res) => {
 exports.getAllFriends = catchAsync(async (req, res, next) => {
   const FriendList = await Friends.find({
     friends: `${req.user._id}`,
-  }).populate("friends");
+  }).populate({
+    path: "friends",
+    select: "username email avatar role onlineStatus blockList",
+  });
   if (FriendList.length === 0) {
     return res.status(200).json({
       status: "success",
@@ -240,13 +251,7 @@ exports.getAllFriends = catchAsync(async (req, res, next) => {
     console.log("FriendList", FriendList);
     const FriendsContact = FriendList.map((el) => {
       const result = el.friends.filter((el) => el.email !== req.user.email);
-      // console.log("result", result);
-      // console.log("el.blcok:", el.blockd_by !== null);
-      // console.log("ellllll", el);
-      // console.log(
-      //   "result2222222",
-      //   el.blockd_by !== null && el.blockd_by !== req.user.email
-      // );
+
       if (el.blockd_by !== null && el.blockd_by !== req.user.email) {
         return { ...el, friends: [] };
       } else {

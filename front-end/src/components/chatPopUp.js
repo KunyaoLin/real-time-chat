@@ -82,4 +82,3 @@ function ChatPopUp() {
   );
 }
 export default ChatPopUp;
-//写每个对话框的内容 包括头像，在线状态，聊天简短内容，姓名，不在线则灰度头像，在popup框中在线排序和消息最新排序，点击对话框后会直接跳转到大的对话界面并且弹回对话popup

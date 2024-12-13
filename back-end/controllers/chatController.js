@@ -148,13 +148,13 @@ exports.getAllUnreadMegsNum = catchAsync(async (req, res) => {
   });
   allMegsRec.forEach((el) => {
     el.messages.forEach((x) => {
-      if (!x.isRead) unReadMegs++;
+      if (!x.isRead && x.senderEmail !== req.user.email) unReadMegs++;
     });
   });
   console.log("unReadMegs:", unReadMegs);
 
   res.status(200).json({
     message: "Sent all unread Messages",
-    data: { unReadMegs },
+    data: { unReadMegs, allMegsRec },
   });
 });

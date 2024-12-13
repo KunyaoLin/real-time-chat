@@ -19,6 +19,8 @@ function reducer(state, action) {
       return { ...state, allFriendsReq: action.payload };
     case "getMe":
       return { ...state, Me: action.payload };
+    case "handleFriReq":
+      return { ...state, editFriReq: action.paypload };
     default:
       throw new Error("unknow action");
   }
@@ -44,7 +46,26 @@ const GlobalContextProvider = ({ children }) => {
       payload: 1,
     });
   }
-
+  async function getFriendReq() {
+    const result = await axios({
+      url: `${URL}/friends/request`,
+      method: "GET",
+      withCredentials: true,
+    });
+    // console.log("result:", result);
+    if (Object.keys(result.data.data).length !== 0) {
+      dispatch({
+        type: "getAllFriendsReq",
+        payload: result.data.data.allReq,
+      });
+    } else {
+      dispatch({
+        type: "getAllFriendsReq",
+        payload: [],
+      });
+    }
+  }
+  //get all unread megs
   useEffect(() => {
     async function getUnReadMegs() {
       const result = await axios({
@@ -57,14 +78,13 @@ const GlobalContextProvider = ({ children }) => {
           type: "getAllUnreadMegs",
           payload: result.data.data.unReadMegs,
         });
+        console.log("result", result);
         // console.log("numUnreadMegs", numUnreadMegs);
       }
-
-      // setUnReadMegs(result.data.data.unReadMegs);
-      // console.log("result:", result);
     }
     getUnReadMegs();
   }, []);
+  // get all friends
   useEffect(() => {
     async function getAllFriends() {
       try {
@@ -74,7 +94,7 @@ const GlobalContextProvider = ({ children }) => {
           withCredentials: true,
         });
         if (!res) throw new Error("get friends info error");
-        console.log("ressssss", res.data.data.FriendsContact);
+        // console.log("ressssss", res.data.data.FriendsContact);
         const friendsList = res.data.data.FriendsContact.filter((el) => {
           return el.friends.length !== 0;
         }).sort((a, b) => {
@@ -84,7 +104,7 @@ const GlobalContextProvider = ({ children }) => {
             ? 1
             : -1;
         });
-        console.log("friendsList:", friendsList);
+        // console.log("friendsList:", friendsList);
 
         dispatch({
           type: "getAllFriendsInfo",
@@ -94,23 +114,11 @@ const GlobalContextProvider = ({ children }) => {
     }
     getAllFriends();
   }, []);
+  //get all friReq
   useEffect(() => {
-    async function getFriendReq() {
-      const result = await axios({
-        url: `${URL}/friends/request`,
-        method: "GET",
-        withCredentials: true,
-      });
-      // console.log("result:", result);
-      if (Object.keys(result.data.data).length !== 0) {
-        dispatch({
-          type: "getAllFriendsReq",
-          payload: result.data.data.allReq,
-        });
-      }
-    }
     getFriendReq();
   }, []);
+  //get me
   useEffect(() => {
     async function getMe() {
       const result = await axios({
@@ -127,9 +135,7 @@ const GlobalContextProvider = ({ children }) => {
     }
     getMe();
   }, []);
-  // console.log("allFriendsReq:", allFriendsReq);
-  // console.log("MeMeMeMeMeMe:", Me);
-  // console.log("friends", friends);
+
   return (
     <GlobalContext.Provider
       value={{
@@ -138,6 +144,7 @@ const GlobalContextProvider = ({ children }) => {
         editUnReadMegsNum,
         editUnReadMegsBySend,
         allFriendsReq,
+        getFriendReq,
         Me,
       }}
     >
