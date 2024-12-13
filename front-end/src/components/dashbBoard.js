@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { showAlert } from "../ult/alert";
 import { useGlobalContext } from "../context/globalContext";
 import NotificationPopUp from "./notificationPopUp";
-import AddFriends from "./addFriends";
+import SearchFriend from "./searchFriends";
 const URL = process.env.REACT_APP_SERVER_URL;
 let newSocket;
 
@@ -144,7 +144,7 @@ function Dashboard() {
             }}
           >
             <div>
-              <AddFriends />
+              <SearchFriend />
             </div>
           </div>
           <div

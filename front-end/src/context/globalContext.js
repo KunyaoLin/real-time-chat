@@ -74,17 +74,17 @@ const GlobalContextProvider = ({ children }) => {
           withCredentials: true,
         });
         if (!res) throw new Error("get friends info error");
-        console.log("ressssss", res);
+        console.log("ressssss", res.data.data.FriendsContact);
         const friendsList = res.data.data.FriendsContact.filter((el) => {
           return el.friends.length !== 0;
         }).sort((a, b) => {
-          return b.onlineStatus === a.onlineStatus
+          return b.friends[0].onlineStatus === a.friends[0].onlineStatus
             ? 0
-            : b.onlineStatus
+            : b.friends[0].onlineStatus
             ? 1
             : -1;
         });
-        // console.log("friendsList:", friendsList);
+        console.log("friendsList:", friendsList);
 
         dispatch({
           type: "getAllFriendsInfo",

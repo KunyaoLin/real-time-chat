@@ -9,7 +9,7 @@ function ContactPopUp() {
   const [animateout, setAnimateout] = useState(false);
   const popUpRef = useRef(null);
   const { friends } = useGlobalContext();
-  console.log("friends", friends);
+  // console.log("friends", friends);
   const handleAnimate = () => {
     setAnimateout(true);
     setTimeout(() => {
@@ -18,8 +18,8 @@ function ContactPopUp() {
     }, 300);
   };
   const handlePopUp = () => {
-    console.log("visiable", visiable);
-    console.log("animateout", animateout);
+    // console.log("visiable", visiable);
+    // console.log("animateout", animateout);
     if (visiable) {
       handleAnimate();
     } else {

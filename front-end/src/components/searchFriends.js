@@ -3,12 +3,11 @@ import { MdOutlinePersonSearch } from "react-icons/md";
 import { useGlobalContext } from "../context/globalContext";
 import { PiSpinnerGapBold } from "react-icons/pi";
 import axios from "axios";
-import SearchFriendIcon from "./searchFriendIcon";
-import { CiSearch } from "react-icons/ci";
+import AddFriendIcon from "./AddFriendIcon";
 import { IoMdSearch } from "react-icons/io";
 const URL = process.env.REACT_APP_SERVER_URL;
 
-function AddFriends() {
+function SearchFriend() {
   const [visiable, setVisiable] = useState(false);
   const [animateout, setAnimateout] = useState(false);
   const [input, setInput] = useState("");
@@ -46,7 +45,7 @@ function AddFriends() {
       setSearchResult(result);
     } catch (err) {
       console.log("err", err);
-      console.log("search account error");
+      // console.log("search account error");
     } finally {
       SetLoading(false);
     }
@@ -80,12 +79,14 @@ function AddFriends() {
   useEffect(() => {
     if (input.trim() !== "") {
       debounceSearch(input);
-      console.log("input", input);
+      // console.log("input", input);
     } else {
       setSearchResult({});
     }
   }, [debounceSearch, input]);
   console.log("searchResult", searchResult);
+  console.log("ME", Me);
+  console.log("friends", friends);
   // console.log("searchResult.length :", searchResult.length);
   return (
     <div
@@ -120,14 +121,16 @@ function AddFriends() {
 
             <div>
               {loading ? (
-                <PiSpinnerGapBold />
+                <div>
+                  <PiSpinnerGapBold />
+                </div>
               ) : (
                 <div className="pt-1">
                   {searchResult?.data?.message === "success" ? (
                     <div className="flex space-y-1 flex-col">
                       {searchResult.data.data.userFound.map((el) => {
                         const checkBlock = el.blockList.filter((e) => {
-                          return e.username === Me.username;
+                          return e.email === Me[0].email;
                         });
                         if (checkBlock.length > 0) {
                           return (
@@ -137,24 +140,26 @@ function AddFriends() {
                           );
                         }
                         const friendExist = friends.filter((t) => {
-                          return t.email === el.email;
+                          return t.friends[0].email === el.email;
                         });
                         if (friendExist.length !== 0) {
                           return (
-                            <SearchFriendIcon
+                            <AddFriendIcon
                               key={el._id}
                               avatar={el.avatar}
                               name={el.username}
                               addSuccess={true}
-                            ></SearchFriendIcon>
+                            ></AddFriendIcon>
                           );
                         } else {
                           return (
-                            <SearchFriendIcon
+                            <AddFriendIcon
                               key={el._id}
+                              email={el.email}
+                              URL={URL}
                               avatar={el.avatar}
                               name={el.username}
-                            ></SearchFriendIcon>
+                            ></AddFriendIcon>
                           );
                         }
                       })}
@@ -171,7 +176,7 @@ function AddFriends() {
     </div>
   );
 }
-export default AddFriends;
+export default SearchFriend;
 
 // {Object.keys(searchResult).length !== 0 ? (
 //   <div>

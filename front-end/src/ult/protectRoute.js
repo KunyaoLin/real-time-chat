@@ -21,7 +21,7 @@ function ProtectRoute({ children }) {
         });
         // console.log("resssss", res);
         if (isMounted && res.data.status === "success") {
-          console.log("success login rn");
+          // console.log("success login rn");
           navigate("/dashboard");
         }
       } catch (err) {
