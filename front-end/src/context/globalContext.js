@@ -7,6 +7,7 @@ const initialState = {
   friends: [],
   allFriendsReq: [],
   Me: {},
+  allUserRec: [],
 };
 
 function reducer(state, action) {
@@ -17,6 +18,8 @@ function reducer(state, action) {
       return { ...state, friends: action.payload };
     case "getAllFriendsReq":
       return { ...state, allFriendsReq: action.payload };
+    case "getAllRec":
+      return { ...state, allUserRec: action.payload };
     case "getMe":
       return { ...state, Me: action.payload };
     case "handleFriReq":
@@ -28,10 +31,8 @@ function reducer(state, action) {
 
 const GlobalContext = createContext();
 const GlobalContextProvider = ({ children }) => {
-  const [{ numUnreadMegs, friends, allFriendsReq, Me }, dispatch] = useReducer(
-    reducer,
-    initialState
-  );
+  const [{ numUnreadMegs, friends, allFriendsReq, Me, allUserRec }, dispatch] =
+    useReducer(reducer, initialState);
 
   function editUnReadMegsNum(num) {
     dispatch({
@@ -44,6 +45,12 @@ const GlobalContextProvider = ({ children }) => {
     dispatch({
       type: "getAllUnreadMegs",
       payload: 1,
+    });
+  }
+  function editAllUserRec(rec) {
+    dispatch({
+      type: "getAllRec",
+      payload: rec,
     });
   }
   async function getFriendReq() {
@@ -65,7 +72,7 @@ const GlobalContextProvider = ({ children }) => {
       });
     }
   }
-  //get all unread megs
+  //get all unread megs num
   useEffect(() => {
     async function getUnReadMegs() {
       const result = await axios({
@@ -118,6 +125,42 @@ const GlobalContextProvider = ({ children }) => {
   useEffect(() => {
     getFriendReq();
   }, []);
+  //get all chatRec
+  useEffect(() => {
+    let isCancel = false;
+    async function getAllChatRecord() {
+      try {
+        const res = await axios({
+          method: "GET",
+          url: `${URL}/chat/getChatRecord`,
+          withCredentials: true,
+        });
+        if (!isCancel && res && res.data) {
+          // console.log("res.data.loginUserInfo:", res.data.loginUserInfo);
+          dispatch({
+            type: "getAllRec",
+            payload: res.data.results,
+          });
+          // setAllUserRec(res.data.results);
+          // setCurrentUserInfo(res.data.loginUserInfo);
+        }
+        console.log(" res.data.results:", res.data.results);
+      } catch (err) {
+        dispatch({
+          type: "getAllRec",
+          payload: [],
+        });
+        // setAllUserRec([]);
+      }
+      // if (!isCancel) setTimeout(getAllChatRecord, 3000); //loop data for every 3s
+    }
+
+    getAllChatRecord();
+
+    return () => {
+      isCancel = true;
+    };
+  }, []);
   //get me
   useEffect(() => {
     async function getMe() {
@@ -129,13 +172,15 @@ const GlobalContextProvider = ({ children }) => {
       if (result) {
         dispatch({
           type: "getMe",
-          payload: result.data.data.currentUser,
+          payload: result.data.data.currentUser[0],
         });
+        // console.log("resultMEEEEEEEEE", result);
       }
     }
     getMe();
   }, []);
-
+  // console.log("meeee", Me);
+  // console.log("allUserRecallUserRec", allUserRec);
   return (
     <GlobalContext.Provider
       value={{
@@ -143,9 +188,11 @@ const GlobalContextProvider = ({ children }) => {
         numUnreadMegs,
         editUnReadMegsNum,
         editUnReadMegsBySend,
+        editAllUserRec,
         allFriendsReq,
         getFriendReq,
         Me,
+        allUserRec,
       }}
     >
       {children}

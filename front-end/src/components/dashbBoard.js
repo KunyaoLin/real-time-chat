@@ -15,7 +15,7 @@ let newSocket;
 
 function Dashboard() {
   const [socket, setSocket] = useState("");
-  const [userEmail, setUserEmail] = useState("");
+  // const [userEmail, setUserEmail] = useState("");
   const navigate = useNavigate();
 
   const handleExit = async () => {
@@ -45,7 +45,7 @@ function Dashboard() {
           withCredentials: true,
         });
         const userEmail = res.data.userEmail;
-        setUserEmail(userEmail);
+        // setUserEmail(userEmail);
 
         if (res.data.status === "success" && !socket) {
           if (!newSocket) {

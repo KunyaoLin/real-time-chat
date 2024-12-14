@@ -424,10 +424,11 @@ exports.getMe = catchAsync(async (req, res) => {
   const currentUser = await User.find({
     email: req.user.email,
   });
-  res.status(200).json({
-    message: "success",
-    data: {
-      currentUser,
-    },
-  });
+  if (currentUser.length !== 0)
+    return res.status(200).json({
+      message: "success",
+      data: {
+        currentUser,
+      },
+    });
 });

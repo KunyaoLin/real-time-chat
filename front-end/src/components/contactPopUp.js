@@ -57,14 +57,13 @@ function ContactPopUp() {
           ref={popUpRef}
         >
           {friends?.map((el) => {
+            const friendInfo = el.friends[0];
+            console.log("el", el.friends);
             return (
               <ContactIcon
                 handlePopUp={handlePopUp}
-                email={el.friends[0].email}
-                name={el.friends[0].username}
-                online={el.friends[0].onlineStatus}
-                key={el.friends[0]._id}
-                avatar={el.friends[0].avatar}
+                friendInfo={friendInfo}
+                key={friendInfo._id}
               />
             );
           })}

@@ -19,11 +19,11 @@ function App() {
         <Route
           path="/dashboard"
           element={
-            <ProtectRoute>
-              <GlobalContextProvider>
+            <GlobalContextProvider>
+              <ProtectRoute>
                 <Dashboard />
-              </GlobalContextProvider>
-            </ProtectRoute>
+              </ProtectRoute>
+            </GlobalContextProvider>
           }
         ></Route>
       </Routes>

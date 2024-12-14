@@ -1,6 +1,6 @@
 import { Avatar, Box, Typography } from "@mui/material";
 import React from "react";
-function DialogueInChat({ dialogues, currentFriInfo, currentUserInfo }) {
+function DialogueInChat({ dialogues, currentFriInfo, Me }) {
   const sender = dialogues.senderEmail;
   const friendEmail = currentFriInfo.email;
   return (
@@ -60,8 +60,8 @@ function DialogueInChat({ dialogues, currentFriInfo, currentUserInfo }) {
           <span>
             <Avatar
               //   src={`${props.name}.png`}
-              src={currentUserInfo[1]}
-              alt={currentUserInfo[0]}
+              src={Me.avatar}
+              alt={Me.email}
               sx={{
                 fontSize: 10,
               }}
