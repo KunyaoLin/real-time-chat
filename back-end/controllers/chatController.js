@@ -71,13 +71,6 @@ exports.sendMessage = catchAsync(async (req, res, next) => {
       message: err,
     });
   }
-
-  // const friendInfo = await User.find({
-  //   email: messageObj.receiverEmail,
-  // });
-
-  // io.emit("message", message);
-  // console.log(`${req.user.username}:`, message);
 });
 exports.getMessages = (req, res, next) => {
   const { message } = req.body;

@@ -150,3 +150,18 @@
     transform: rotate(360deg);
   }
 }
+
+@keyframes fadeOutSlide {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+}
+
+.delete-animation {
+  animation: fadeOutSlide 0.5s forwards;
+}

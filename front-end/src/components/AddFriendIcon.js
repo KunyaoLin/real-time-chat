@@ -14,11 +14,10 @@ function AddFriendIcon(props) {
   const [isClick, setClick] = useState(false);
   const [sendReq, setSendReq] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [friReq, setFriReq] = useState([]);
   const [checkSend, setCheckSend] = useState([]);
   const { Me } = useGlobalContext();
   const email = props.email;
-  const myEmail = Me[0].email;
+  const myEmail = Me.email;
   const handleClick = () => {
     setClick(true);
     setSendReq(true);

@@ -10,7 +10,7 @@ function FriendReqIcon(props) {
   const [accepting, setAccept] = useState(false);
   const [rejecting, setReject] = useState(false);
 
-  const { getFriendReq } = useGlobalContext();
+  const { getFriendReq, getAllChatRecord } = useGlobalContext();
 
   const handleAccept = async () => {
     try {
@@ -21,9 +21,14 @@ function FriendReqIcon(props) {
         withCredentials: true,
         data: {
           senderEmail: props.senderEmail,
+          senderId: props._id,
+          sendName: props.username,
         },
       });
-      getFriendReq();
+      if (result.data.status === "success") {
+        getFriendReq();
+        getAllChatRecord(true);
+      }
       console.log("result", result);
     } catch (err) {
     } finally {
@@ -56,14 +61,14 @@ function FriendReqIcon(props) {
           alt={`${props.avatar}`}
           sx={{
             fontSize: 10,
-            filter: props.online ? "none" : "grayscale(80%)",
+            filter: props.onlineStatus ? "none" : "grayscale(80%)",
           }}
         />
       </span>
       <div className="flex items-center flex-row w-full">
         <div>
           <p className="text-left w-full px-2 font-roboto font-semibold text-gray-900 text-base">
-            {props.name}
+            {props.username}
           </p>
           <p className="w-full px-2 text-xs">want to connect with you</p>
         </div>

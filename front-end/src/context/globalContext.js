@@ -7,13 +7,21 @@ const initialState = {
   friends: [],
   allFriendsReq: [],
   Me: {},
+  currentFriInfo: "",
   allUserRec: [],
+  openChat: false,
+  allCurUserMessageRec: [],
 };
 
 function reducer(state, action) {
   switch (action.type) {
     case "getAllUnreadMegs":
-      return { ...state, numUnreadMegs: state.numUnreadMegs + action.payload };
+      return { ...state, numUnreadMegs: action.payload };
+    case "editUnreadMegs":
+      return {
+        ...state,
+        numUnreadMegs: state.numUnreadMegs + action.payload,
+      };
     case "getAllFriendsInfo":
       return { ...state, friends: action.payload };
     case "getAllFriendsReq":
@@ -22,8 +30,28 @@ function reducer(state, action) {
       return { ...state, allUserRec: action.payload };
     case "getMe":
       return { ...state, Me: action.payload };
-    case "handleFriReq":
-      return { ...state, editFriReq: action.paypload };
+    // case "handleFriReq":
+    //   return { ...state, editFriReq: action.payload };
+    case "setCurrentFriInfo":
+      return {
+        ...state,
+        currentFriInfo: action.payload,
+      };
+    case "openChatWindow":
+      return {
+        ...state,
+        openChat: action.payload,
+      };
+    case "handleCurChatMegs":
+      return {
+        ...state,
+        allCurUserMessageRec: [...state.allCurUserMessageRec, action.payload],
+      };
+    case "handleCurChatMegsByClick":
+      return {
+        ...state,
+        allCurUserMessageRec: action.payload,
+      };
     default:
       throw new Error("unknow action");
   }
@@ -31,19 +59,30 @@ function reducer(state, action) {
 
 const GlobalContext = createContext();
 const GlobalContextProvider = ({ children }) => {
-  const [{ numUnreadMegs, friends, allFriendsReq, Me, allUserRec }, dispatch] =
-    useReducer(reducer, initialState);
+  const [
+    {
+      numUnreadMegs,
+      friends,
+      allFriendsReq,
+      Me,
+      allUserRec,
+      currentFriInfo,
+      openChat,
+      allCurUserMessageRec,
+    },
+    dispatch,
+  ] = useReducer(reducer, initialState);
 
-  function editUnReadMegsNum(num) {
+  function editUnReadMegsNumByClick(num) {
     dispatch({
-      type: "getAllUnreadMegs",
+      type: "editUnreadMegs",
       payload: -num,
     });
-    console.log("num:", -num);
+    // console.log("num:", -num);
   }
   function editUnReadMegsBySend() {
     dispatch({
-      type: "getAllUnreadMegs",
+      type: "editUnreadMegs",
       payload: 1,
     });
   }
@@ -51,6 +90,30 @@ const GlobalContextProvider = ({ children }) => {
     dispatch({
       type: "getAllRec",
       payload: rec,
+    });
+  }
+  function editCurrentFriInfo(info) {
+    dispatch({
+      type: "setCurrentFriInfo",
+      payload: info,
+    });
+  }
+  function handleChatWindow(open) {
+    dispatch({
+      type: "openChatWindow",
+      payload: open,
+    });
+  }
+  function handleCurUserAllmegs(megs) {
+    dispatch({
+      type: "handleCurChatMegs",
+      payload: megs,
+    });
+  }
+  function handleCurUserAllmegsByClick(megsArr) {
+    dispatch({
+      type: "handleCurChatMegsByClick",
+      payload: megsArr,
     });
   }
   async function getFriendReq() {
@@ -72,53 +135,76 @@ const GlobalContextProvider = ({ children }) => {
       });
     }
   }
-  //get all unread megs num
-  useEffect(() => {
-    async function getUnReadMegs() {
-      const result = await axios({
-        url: `${URL}/chat/getAllUnreadMegsNum`,
+  async function getAllChatRecord(e) {
+    try {
+      const res = await axios({
+        method: "GET",
+        url: `${URL}/chat/getChatRecord`,
+        withCredentials: true,
+      });
+      if (e && res && res.data) {
+        dispatch({
+          type: "getAllRec",
+          payload: res.data.results,
+        });
+      }
+      // console.log(" res.data.results:", res.data.results);
+    } catch (err) {
+      dispatch({
+        type: "getAllRec",
+        payload: [],
+      });
+    }
+    // if (!isCancel) setTimeout(getAllChatRecord, 3000); //loop data for every 3s
+  }
+  async function getAllFriends() {
+    try {
+      const res = await axios({
+        url: `${URL}/friends/getAllFriends`,
         method: "GET",
         withCredentials: true,
       });
-      if (result) {
-        dispatch({
-          type: "getAllUnreadMegs",
-          payload: result.data.data.unReadMegs,
-        });
-        console.log("result", result);
-        // console.log("numUnreadMegs", numUnreadMegs);
-      }
+      if (!res) throw new Error("get friends info error");
+      // console.log("ressssss", res.data.data.FriendsContact);
+      const friendsList = res.data.data.FriendsContact.filter((el) => {
+        return el.friends.length !== 0;
+      }).sort((a, b) => {
+        return b.friends[0].onlineStatus === a.friends[0].onlineStatus
+          ? 0
+          : b.friends[0].onlineStatus
+          ? 1
+          : -1;
+      });
+      // console.log("friendsList:", friendsList);
+
+      dispatch({
+        type: "getAllFriendsInfo",
+        payload: friendsList,
+      });
+      return { success: true };
+    } catch (err) {}
+  }
+  async function getAllUnReadMegs() {
+    const result = await axios({
+      url: `${URL}/chat/getAllUnreadMegsNum`,
+      method: "GET",
+      withCredentials: true,
+    });
+    if (result) {
+      dispatch({
+        type: "getAllUnreadMegs",
+        payload: result.data.data.unReadMegs,
+      });
+      // console.log("result", result);
+      // console.log("numUnreadMegs", numUnreadMegs);
     }
-    getUnReadMegs();
+  }
+  //get all unread megs num
+  useEffect(() => {
+    getAllUnReadMegs();
   }, []);
   // get all friends
   useEffect(() => {
-    async function getAllFriends() {
-      try {
-        const res = await axios({
-          url: `${URL}/friends/getAllFriends`,
-          method: "GET",
-          withCredentials: true,
-        });
-        if (!res) throw new Error("get friends info error");
-        // console.log("ressssss", res.data.data.FriendsContact);
-        const friendsList = res.data.data.FriendsContact.filter((el) => {
-          return el.friends.length !== 0;
-        }).sort((a, b) => {
-          return b.friends[0].onlineStatus === a.friends[0].onlineStatus
-            ? 0
-            : b.friends[0].onlineStatus
-            ? 1
-            : -1;
-        });
-        // console.log("friendsList:", friendsList);
-
-        dispatch({
-          type: "getAllFriendsInfo",
-          payload: friendsList,
-        });
-      } catch (err) {}
-    }
     getAllFriends();
   }, []);
   //get all friReq
@@ -127,38 +213,13 @@ const GlobalContextProvider = ({ children }) => {
   }, []);
   //get all chatRec
   useEffect(() => {
-    let isCancel = false;
-    async function getAllChatRecord() {
-      try {
-        const res = await axios({
-          method: "GET",
-          url: `${URL}/chat/getChatRecord`,
-          withCredentials: true,
-        });
-        if (!isCancel && res && res.data) {
-          // console.log("res.data.loginUserInfo:", res.data.loginUserInfo);
-          dispatch({
-            type: "getAllRec",
-            payload: res.data.results,
-          });
-          // setAllUserRec(res.data.results);
-          // setCurrentUserInfo(res.data.loginUserInfo);
-        }
-        console.log(" res.data.results:", res.data.results);
-      } catch (err) {
-        dispatch({
-          type: "getAllRec",
-          payload: [],
-        });
-        // setAllUserRec([]);
-      }
-      // if (!isCancel) setTimeout(getAllChatRecord, 3000); //loop data for every 3s
-    }
+    let isCreate = true;
 
-    getAllChatRecord();
+    //点击创建聊天后，没有新增对话框左边，另外聊天里面没有创建的对话记录
+    getAllChatRecord(isCreate);
 
     return () => {
-      isCancel = true;
+      isCreate = false;
     };
   }, []);
   //get me
@@ -179,20 +240,29 @@ const GlobalContextProvider = ({ children }) => {
     }
     getMe();
   }, []);
-  // console.log("meeee", Me);
-  // console.log("allUserRecallUserRec", allUserRec);
+
   return (
     <GlobalContext.Provider
       value={{
         friends,
         numUnreadMegs,
-        editUnReadMegsNum,
+        editUnReadMegsNumByClick,
         editUnReadMegsBySend,
         editAllUserRec,
+        editCurrentFriInfo,
         allFriendsReq,
         getFriendReq,
+        getAllChatRecord,
+        getAllFriends,
+        getAllUnReadMegs,
+        currentFriInfo,
+        handleChatWindow,
+        handleCurUserAllmegs,
         Me,
         allUserRec,
+        openChat,
+        allCurUserMessageRec,
+        handleCurUserAllmegsByClick,
       }}
     >
       {children}

@@ -15,7 +15,9 @@ function SearchFriend() {
   const [loading, SetLoading] = useState(false);
   const popUpRef = useRef(null);
   const { Me, friends } = useGlobalContext();
-
+  console.log("searchResult", searchResult);
+  console.log("friends", friends);
+  console.log("Me", Me);
   const handleInput = (e) => {
     setInput(e.target.value);
   };
@@ -131,13 +133,13 @@ function SearchFriend() {
                     <div className="flex space-y-1 flex-col">
                       {searchResult.data.data.userFound.map((el) => {
                         const checkBlock = el.blockList.filter((e) => {
-                          console.log("check", e.email === Me[0].email);
+                          console.log("check", e.email === Me.email);
 
-                          return e.email === Me[0].email;
+                          return e.email === Me.email;
                         });
                         if (
                           checkBlock.length > 0 &&
-                          checkBlock[0].email === Me[0].email
+                          checkBlock[0].email === Me.email
                         ) {
                           return (
                             <div>
@@ -148,10 +150,7 @@ function SearchFriend() {
                         const friendExist = friends.filter((t) => {
                           return t.friends[0].email === el.email;
                         });
-                        if (
-                          friendExist.length !== 0 ||
-                          el.email === Me[0].email
-                        ) {
+                        if (friendExist.length !== 0 || el.email === Me.email) {
                           return (
                             <AddFriendIcon
                               key={el._id}

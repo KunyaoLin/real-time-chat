@@ -11,7 +11,7 @@ function NotificationPopUp() {
   const [animateout, setAnimateout] = useState(false);
   const popUpRef = useRef(null);
   const { allFriendsReq } = useGlobalContext();
-  // console.log("allFriendsReqallFriendsReq", allFriendsReq);
+  console.log("allFriendsReqallFriendsReq", allFriendsReq);
   const handleAnimate = () => {
     setAnimateout(true);
     setTimeout(() => {
@@ -59,12 +59,12 @@ function NotificationPopUp() {
             allFriendsReq.map((el) => {
               return (
                 <FriendReqIcon
-                  receiverEmail={el.receiverEmail}
                   senderEmail={el.senderEmail}
-                  name={el.senderId.username}
-                  online={el.senderId.onlineStatus}
+                  username={el.senderId.username}
+                  onlineStatus={el.senderId.onlineStatus}
                   key={el.senderId.username}
                   avatar={el.senderId.avatar}
+                  _id={el.senderId._id}
                 />
               );
             })

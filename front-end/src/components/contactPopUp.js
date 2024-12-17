@@ -6,6 +6,7 @@ import { useGlobalContext } from "../context/globalContext";
 function ContactPopUp() {
   const [visiable, setVisiable] = useState(false);
   const [animateout, setAnimateout] = useState(false);
+
   const popUpRef = useRef(null);
   const { friends } = useGlobalContext();
   const handleAnimate = () => {
@@ -63,6 +64,7 @@ function ContactPopUp() {
               <ContactIcon
                 handlePopUp={handlePopUp}
                 friendInfo={friendInfo}
+                status={el._doc.status}
                 key={friendInfo._id}
               />
             );

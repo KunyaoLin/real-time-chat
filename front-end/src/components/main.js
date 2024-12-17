@@ -11,18 +11,25 @@ const URL = process.env.REACT_APP_SERVER_URL;
 
 function Main({ newSocket }) {
   const [inputMessage, setInputMessage] = useState("");
-  const [allMessageRec, setAllMessageRec] = useState([]);
-  const [openChat, setOpenChat] = useState(false);
-  const [currentFriInfo, setCurrentFriInfo] = useState("");
+  // const [allMessageRec, setAllMessageRec] = useState([]);
+  // const [openChat, setOpenChat] = useState(false);
   const bottomRef = useRef(null);
   const {
-    editUnReadMegsNum,
+    editUnReadMegsNumByClick,
     editUnReadMegsBySend,
     Me,
     allUserRec,
     editAllUserRec,
+    editCurrentFriInfo,
+    currentFriInfo,
+    handleChatWindow,
+    openChat,
+    allCurUserMessageRec,
+    handleCurUserAllmegs,
+    handleCurUserAllmegsByClick,
   } = useGlobalContext();
   console.log("allUserRec", allUserRec);
+
   const handleChatClick = async (info, allMessages) => {
     let unReadMegs = 0;
 
@@ -30,8 +37,10 @@ function Main({ newSocket }) {
       return;
     }
     console.log("info:", info);
-    setCurrentFriInfo(info);
-    setAllMessageRec(allMessages);
+    editCurrentFriInfo(info);
+    // console.log("allMessages", allMessages);
+    handleCurUserAllmegsByClick(allMessages); //array
+
     //dismiss unread megs
     allUserRec.forEach((el) => {
       const result = el.participants.filter((i) => {
@@ -44,12 +53,12 @@ function Main({ newSocket }) {
             x.isRead = true;
           }
         });
-        editUnReadMegsNum(unReadMegs);
+        editUnReadMegsNumByClick(unReadMegs);
         console.log("unReadMegs:", unReadMegs);
       }
     });
 
-    setOpenChat(true);
+    handleChatWindow(true);
     try {
       await axios({
         url: `${URL}/chat/setAllMesgRead`,
@@ -76,7 +85,9 @@ function Main({ newSocket }) {
         timeStamp: Date.now(),
         isRead: false,
       };
-      setAllMessageRec((premessage) => [...premessage, message]);
+
+      handleCurUserAllmegs(message);
+
       const newUserRec = allUserRec.map((el) => {
         const findone = el.participants.filter((el) => {
           return el.email === message.receiverEmail;
@@ -94,13 +105,16 @@ function Main({ newSocket }) {
       setInputMessage("");
     }
   };
+  //roll down to the end megs
   useEffect(() => {
     if (bottomRef.current) {
       bottomRef.current.scrollIntoView({ behavior: "auto" });
     }
-  }, [allMessageRec]);
+  }, [allCurUserMessageRec]);
+
   const handleInput = (e) => {
     setInputMessage(e.target.value);
+    // console.log("inputMessage", inputMessage);
   };
   //handle receive message
   useEffect(() => {
@@ -136,7 +150,7 @@ function Main({ newSocket }) {
         });
 
         editAllUserRec(receiveNewRec);
-        setAllMessageRec((premessage) => [...premessage, messageRead]);
+        handleCurUserAllmegs(messageRead);
         const setAllRead = async () => {
           const setRead = await axios({
             url: `${URL}/chat/setAllMesgRead`,
@@ -160,7 +174,7 @@ function Main({ newSocket }) {
           const result = targetEmailArr.every(
             (value, index) => value === receiverArr[index]
           );
-          console.log("result:", result);
+          // console.log("result:", result);
           if (result) {
             editUnReadMegsBySend();
 
@@ -183,6 +197,7 @@ function Main({ newSocket }) {
     currentFriInfo,
     editUnReadMegsBySend,
     editAllUserRec,
+    handleCurUserAllmegs,
   ]);
 
   return (
@@ -251,7 +266,7 @@ function Main({ newSocket }) {
                   const mins = new Date(
                     el.messages[lastNum].timeStamp
                   ).getMinutes();
-                  console.log("mins", mins);
+                  // console.log("mins", mins);
                   const time = `${hours < 10 ? "0" + hours : hours}:${
                     mins < 10 ? "0" + mins.toString() : mins
                   }`;
@@ -262,7 +277,7 @@ function Main({ newSocket }) {
                     <button
                       onClick={() => {
                         handleChatClick(friendInfo[0], allMessages);
-                        console.log("friendInfo[0]", friendInfo[0]);
+                        // console.log("friendInfo[0]", friendInfo[0]);
                       }}
                       key={friendInfo[0].username}
                     >
@@ -312,7 +327,7 @@ function Main({ newSocket }) {
                   height: "750px",
                 }}
               >
-                {allMessageRec.map((el) => {
+                {allCurUserMessageRec.map((el) => {
                   const dialogues = el;
                   return (
                     <DialogueInChat

@@ -9,6 +9,7 @@ import ProtectRoute from "./ult/protectRoute";
 import { GlobalContextProvider } from "./context/globalContext";
 function App() {
   return (
+    // <GlobalContextProvider>
     <BrowserRouter future={{ v7_startTransition: true }}>
       <Routes>
         <Route path="*" element={<Navigate to="/login" replace />}></Route>
@@ -28,6 +29,7 @@ function App() {
         ></Route>
       </Routes>
     </BrowserRouter>
+    // </GlobalContextProvider>
   );
 }
 

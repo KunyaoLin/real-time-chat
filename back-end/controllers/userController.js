@@ -146,7 +146,15 @@ exports.acceptFriend = catchAsync(async (req, res) => {
     const addFriend = await Friends.create({
       friends: [`${req.user._id}`, `${friendInfo._id}`],
     });
-    if (!addFriend) throw new Error("add Friend error");
+    const WelMegs = await ChatHistory.create({
+      participants: [req.user._id, req.body.senderId],
+      messages: {
+        senderEmail: req.body.senderEmail,
+        receiverEmail: req.user.email,
+        message: "Nice to see you",
+      },
+    });
+    if (!addFriend || !WelMegs) throw new Error("add Friend error");
     res.status(200).json({
       status: "success",
       message: "Accept friend request successfully",
