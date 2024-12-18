@@ -65,6 +65,7 @@ function ContactPopUp() {
                 handlePopUp={handlePopUp}
                 friendInfo={friendInfo}
                 status={el._doc.status}
+                doc={el._doc}
                 key={friendInfo._id}
               />
             );

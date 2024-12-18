@@ -142,6 +142,9 @@
 
   animation: slideOutRight 0.3s ease-out forwards;
 }
+.spin-infinite {
+  animation: spin 1s linear infinite;
+}
 @keyframes spin {
   0% {
     transform: rotate(0deg);
@@ -164,4 +167,39 @@
 
 .delete-animation {
   animation: fadeOutSlide 0.5s forwards;
+}
+
+.lock-animation {
+  animation: lock-shake 0.5s ease;
+  color: red; /* 锁住时的颜色 */
+}
+
+.unlock-animation {
+  animation: unlock-bounce 0.5s ease;
+  color: green; /* 开锁时的颜色 */
+}
+
+@keyframes lock-shake {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-10deg);
+  }
+  75% {
+    transform: rotate(10deg);
+  }
+}
+
+@keyframes unlock-bounce {
+  0% {
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
 }

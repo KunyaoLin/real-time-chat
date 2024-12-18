@@ -1,17 +1,23 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Avatar from "@mui/material/Avatar";
 import { TiDeleteOutline } from "react-icons/ti";
-import { SiAdblock } from "react-icons/si";
+import { PiSpinnerGapBold } from "react-icons/pi";
+
 import axios from "axios";
 import { useGlobalContext } from "../context/globalContext";
-import { GrUnlock } from "react-icons/gr";
+import { GrUnlock, GrLock } from "react-icons/gr";
+
 const URL = process.env.REACT_APP_SERVER_URL;
 function ContactIcon(props) {
+  console.log("el._doc", props.doc);
   const [deleting, setDeleting] = useState(false);
-  const [block, setBlock] = useState(false);
+
+  const [lock, setLock] = useState(props.status === "blocked");
+  const [loading, setLoading] = useState(false);
+  // const [unBlocking, setUnblock] = useState(false);
   const [isDeleteClick, setDeleteClick] = useState(false);
   const [isBlockClick, setBlockClick] = useState(false);
-
+  const [isUnblockClick, setUnblockClick] = useState(false);
   const { getAllChatRecord, getAllFriends, getUnReadMegs, handleChatWindow } =
     useGlobalContext();
 
@@ -23,38 +29,6 @@ function ContactIcon(props) {
         handleDelete();
       }, 100);
     }, 100);
-  };
-  const handleBlockClick = () => {
-    setBlockClick(true);
-    setTimeout(() => {
-      setBlockClick(false);
-      setTimeout(() => {
-        handleBlock();
-      }, 100);
-    }, 100);
-  };
-  const handleBlock = async () => {
-    const isBlock = window.confirm(
-      "Are you sure you want to Block this friend?"
-    );
-    if (isBlock) {
-      try {
-        const result = await axios({
-          url: `${URL}/friends/blockFriend`,
-          method: "PATCH",
-          withCredentials: true,
-          data: {
-            blockEmail: props.friendInfo.email,
-          },
-        });
-        if (result.data.status === "success") {
-          setBlock(true);
-        }
-        console.log("result", result);
-      } catch (err) {
-      } finally {
-      }
-    }
   };
   const handleDelete = async () => {
     const isDelete = window.confirm(
@@ -86,7 +60,90 @@ function ContactIcon(props) {
 
     // if(result.data.data.status)
   };
-  // console.log("friendInfo", props.friendInfo);
+  const handleBlockClick = () => {
+    setBlockClick(true);
+    setTimeout(() => {
+      setBlockClick(false);
+      setTimeout(() => {
+        handleBlock();
+      }, 100);
+    }, 100);
+  };
+  const handleBlock = async () => {
+    const isBlock = window.confirm(
+      "Are you sure you want to Block this friend?"
+    );
+    if (isBlock) {
+      setLoading(true);
+      try {
+        const result = await axios({
+          url: `${URL}/friends/blockFriend`,
+          method: "PATCH",
+          withCredentials: true,
+          data: {
+            blockEmail: props.friendInfo.email,
+          },
+        });
+        console.log("result", result);
+        console.log("result.data.data.status", result.data.data.status);
+        if (result.data.status === "success") {
+          setLock(true);
+          handleChatWindow(false);
+          await getAllFriends();
+          await getUnReadMegs();
+          await getAllChatRecord(true);
+        }
+      } catch (err) {
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+  const handleUnblockClick = () => {
+    setUnblockClick(true);
+    setTimeout(() => {
+      setUnblockClick(false);
+      setTimeout(() => {
+        handleUnblock();
+      }, 100);
+    }, 100);
+  };
+  const handleUnblock = async () => {
+    const isRelease = window.confirm(
+      "Are you sure you want to release this friend?"
+    );
+    if (isRelease) {
+      setLoading(true);
+      try {
+        const result = await axios({
+          url: `${URL}/friends/unblockFriend`,
+          method: "PATCH",
+          withCredentials: true,
+          data: {
+            unblockEmail: props.friendInfo.email,
+          },
+        });
+        console.log("result", result);
+
+        // console.log("result.data.data.status", result.data.data.status);
+        if (result.data.status === "success") {
+          setLock(false);
+          handleChatWindow(false);
+          await getAllFriends();
+          await getUnReadMegs();
+          await getAllChatRecord(true);
+        }
+      } catch (err) {
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+  useEffect(() => {
+    setLock(props.status === "blocked");
+  }, [props.status]);
+  // console.log("lock", lock);
+  console.log("props.status", props.status === "blocked");
   return (
     <div
       className={`flex bg-slate-100 hover:bg-orange-100 rounded-lg p-1 ${
@@ -120,24 +177,40 @@ function ContactIcon(props) {
           {props.friendInfo.username}
         </p>
         <div className="flex items-center justify-center flex-row w-28 space-x-2">
-          <button
-            className={`transition-transform duration-100 ${
-              isBlockClick ? "scale-75" : "scale-100"
-            }`}
-            onClick={handleBlockClick}
-          >
-            {props.status === "blocked" ? (
-              <GrUnlock></GrUnlock>
-            ) : (
-              <SiAdblock
-                className="hover:scale-125 transition-transform"
+          {loading ? (
+            <PiSpinnerGapBold className="spin-infinite" />
+          ) : lock ? (
+            <button
+              className={`${
+                isUnblockClick ? "scale-75" : "scale-100"
+              } duration-200`}
+              onClick={handleUnblockClick}
+            >
+              <GrLock
+                className={`hover:scale-125 transition-transform duration-100 ease-in-out unlock-animation`}
                 style={{
                   fontSize: "18px",
-                  color: "red",
+                  // color: "red",
                 }}
               />
-            )}
-          </button>
+            </button>
+          ) : (
+            <button
+              className={`${
+                isBlockClick ? "scale-75" : "scale-100"
+              } duration-200`}
+              onClick={handleBlockClick}
+            >
+              <GrUnlock
+                className={`hover:scale-125 transition-transform duration-200 ease-in-out lock-animation`}
+                style={{
+                  fontSize: "18px",
+                  // color: "green",
+                }}
+              />
+            </button>
+          )}
+
           <button
             className={`transition-transform duration-100 ${
               isDeleteClick ? "scale-75" : "scale-100"

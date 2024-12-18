@@ -290,7 +290,7 @@ exports.blockFriend = catchAsync(async (req, res) => {
         },
       });
       if (checkBlockList.length > 0) {
-        return res.status(200).json({
+        return res.status(500).json({
           message: "This account is on your block list",
           data: { checkBlockList },
         });
