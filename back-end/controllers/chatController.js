@@ -13,7 +13,7 @@ exports.sendMessage = catchAsync(async (req, res, next) => {
     const sendTo = await User.findOne({
       email: messageObj.receiverEmail,
     });
-    console.log("sendTo:", sendTo);
+    // console.log("sendTo:", sendTo);
     if (!sendTo) throw new Error("No User found, send message error!");
     const checkFriendExist = await Friends.find({
       friends: {
@@ -55,7 +55,7 @@ exports.sendMessage = catchAsync(async (req, res, next) => {
           },
         ],
       });
-      console.log(newChat);
+      // console.log(newChat);
       return res.status(200).json({
         status: "success",
         message: "message send success successfully",
@@ -90,6 +90,7 @@ exports.getChatRecord = catchAsync(async (req, res) => {
     participants: {
       $in: [req.user._id],
     },
+    status: "active",
   })
     .populate("participants", "username avatar email onlineStatus")
     .exec();
@@ -111,7 +112,7 @@ exports.setAllMesgRead = catchAsync(async (req, res) => {
   const result = await ChatHistory.updateMany(
     {
       participants: {
-        $all: [req.user._id, req.body.FriendInfo._id],
+        $all: [req.user._id, req.body.FriendInfoId],
       },
     },
     {
@@ -138,13 +139,14 @@ exports.getAllUnreadMegsNum = catchAsync(async (req, res) => {
   let unReadMegs = 0;
   const allMegsRec = await ChatHistory.find({
     participants: req.user._id,
+    status: "active",
   });
   allMegsRec.forEach((el) => {
     el.messages.forEach((x) => {
       if (!x.isRead && x.senderEmail !== req.user.email) unReadMegs++;
     });
   });
-  console.log("unReadMegs:", unReadMegs);
+  // console.log("unReadMegs:", unReadMegs);
 
   res.status(200).json({
     message: "Sent all unread Messages",

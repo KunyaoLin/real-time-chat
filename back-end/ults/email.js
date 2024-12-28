@@ -39,9 +39,9 @@ module.exports = class Email {
         html,
       };
       await this.transporter().sendMail(mailOptions);
-      console.log("Email sent successfully!!");
+      // console.log("Email sent successfully!!");
     } catch (err) {
-      console.log("Email sent error");
+      // console.log("Email sent error");
     }
   }
   async sendWelcome() {

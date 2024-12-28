@@ -21,9 +21,9 @@ export function ResetPassword() {
     e.preventDefault();
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
-    console.log(data);
-    console.log(data.password);
-    console.log(data.passwordConfirmed);
+    // console.log(data);
+    // console.log(data.password);
+    // console.log(data.passwordConfirmed);
 
     if (data.password === data.passwordConfirmed) {
       try {
@@ -44,7 +44,7 @@ export function ResetPassword() {
           window.location.assign("/dashboard");
         }, 1500);
       } catch (err) {
-        console.log(err);
+        // console.log(err);
         showAlert("error", err.response.data.message);
       }
     } else if (data.password !== data.passwordConfirmed) {

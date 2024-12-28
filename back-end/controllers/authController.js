@@ -182,13 +182,13 @@ exports.forgetPassword = catchAsync(async (req, res, next) => {
   await user.save({ validateBeforeSave: false });
 
   try {
-    console.log("resToken:", resetToken);
+    // console.log("resToken:", resetToken);
     //create new email template
     // const resURL = `${req.protocol}://${req.get(
     //   "host"
     // )}/resetPassword/${resetToken}`;
     const resURL = `${process.env.FRONT_END_URL}/resetPassword/${resetToken}`;
-    console.log("resURL:", resURL);
+    // console.log("resURL:", resURL);
 
     await new Email(user, resURL).sendPasswordForget();
     res.status(200).json({
@@ -225,3 +225,48 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   //auth the token
 });
 //update password
+exports.updatePassword = catchAsync(async (req, res) => {
+  //get current password
+  const currentPassword = req.body.currentPassword;
+  const newPassword = req.body.newPassword;
+  const user = await User.findOne({
+    email: req.user.email,
+    onlineStatus: true,
+  }).select("+password");
+  if (
+    !user ||
+    !currentPassword ||
+    !(await user.correctPassword(currentPassword, user.password))
+  ) {
+    return res.status(200).json({
+      status: "error",
+      message: "wrong current password",
+    });
+  }
+  user.password = newPassword;
+  user.passwordConfirmed = newPassword;
+  await user.save();
+  // const token = signToken(user._id);
+
+  // res.cookie("jwt", "", {
+  //   expires: new Date(0),
+  //   httpOnly: true,
+
+  //   secure:
+  //     req.secure ||
+  //     (process.env.NODE_ENV === "production" &&
+  //       req.headers["x-forwarded-proto" === "https"]), //when server run in http,req.secure return true
+  //   sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+  // });
+  res.clearCookie("jwt", {
+    httpOnly: true,
+    secure:
+      req.secure ||
+      (process.env.NODE_ENV === "production" &&
+        req.headers["x-forwarded-proto"] === "https"),
+    sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+  });
+  res.status(200).json({
+    status: "success",
+  });
+});

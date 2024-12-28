@@ -50,7 +50,7 @@ function Signup() {
         navigate("/login");
       }, 1500);
     } catch (err) {
-      console.log(err);
+      // console.log(err);
       alert(err);
     }
   };

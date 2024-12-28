@@ -1,8 +1,15 @@
 import { Avatar, Box, Typography } from "@mui/material";
 import React from "react";
-function DialogueInChat({ dialogues, currentFriInfo, Me }) {
+function DialogueInChat({
+  dialogues,
+  currentFriInfo,
+  Me,
+  myavatarUrl,
+  friendAvatarUrl,
+}) {
   const sender = dialogues.senderEmail;
   const friendEmail = currentFriInfo.email;
+
   return (
     <>
       {sender === friendEmail ? (
@@ -10,8 +17,8 @@ function DialogueInChat({ dialogues, currentFriInfo, Me }) {
           <span>
             <Avatar
               // src={`${props.name}.png`}
-              src={`${currentFriInfo.avatar}`}
-              alt={`${currentFriInfo.username}`}
+              src={friendAvatarUrl}
+              alt={friendAvatarUrl}
               sx={{
                 fontSize: 10,
               }}
@@ -60,8 +67,8 @@ function DialogueInChat({ dialogues, currentFriInfo, Me }) {
           <span>
             <Avatar
               //   src={`${props.name}.png`}
-              src={Me.avatar}
-              alt={Me.email}
+              src={myavatarUrl}
+              alt={myavatarUrl}
               sx={{
                 fontSize: 10,
               }}

@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { showAlert } from "../ult/alert";
 import NotificationPopUp from "./notificationPopUp";
 import SearchFriend from "./searchFriends";
+import Setting from "./setting";
 const URL = process.env.REACT_APP_SERVER_URL;
 let newSocket;
 
@@ -26,7 +27,7 @@ function Dashboard() {
     });
     if (response.data.status === "logout successfully") {
       showAlert("success", "logout successfully");
-      console.log("socket", socket);
+      // console.log("socket", socket);
       if (newSocket) {
         newSocket.disconnect();
         setSocket(null);
@@ -55,22 +56,22 @@ function Dashboard() {
             setSocket(newSocket);
 
             newSocket.on("connect", () => {
-              console.log("connected to server with ID ", newSocket.id);
+              // console.log("connected to server with ID ", newSocket.id);
               newSocket.emit("addOnlineuser", userEmail);
-              console.log("userEmail", userEmail);
+              // console.log("userEmail", userEmail);
 
               // console.log("email:", res.data.user.userEmail);
             });
           }
         }
       } catch (err) {
-        console.log(err);
+        // console.log(err);
       }
     }
     ConnectIo();
     return () => {
       if (newSocket) {
-        console.log("newSocket disconnect");
+        // console.log("newSocket disconnect");
         newSocket.off("connect");
         newSocket.off("disconnect");
         newSocket.disconnect();
@@ -163,8 +164,18 @@ function Dashboard() {
               }}
             />
           </button>
-
-          <SettingsIcon sx={{ color: "white", fontSize: "30px" }} />
+          <div
+            style={{
+              position: "flex",
+              justifyContent: "center",
+              alignContent: "center",
+              zIndex: "9999",
+            }}
+          >
+            <div>
+              <Setting />
+            </div>
+          </div>
         </div>
       </div>
       <Main newSocket={newSocket} />

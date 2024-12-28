@@ -26,7 +26,7 @@ function ProtectRoute({ children }) {
         }
       } catch (err) {
         if (isMounted) {
-          console.log(err);
+          // console.log(err);
           navigate("/login");
         }
       } finally {

@@ -12,14 +12,14 @@ const chatRoute = require("./routes/chatRouters");
 const ChatHistory = require("./models/chatHistoryModel");
 const Friends = require("./models/friendsModel");
 const User = require("./models/userModel");
-const { timeStamp } = require("console");
+const bodyParser = require("body-parser");
 dotenv.config({ path: "./config.env" });
 const DB_URL = process.env.DATABASE_URL.replace(
   "<db_password>",
   process.env.DATABASE_PASSWORD
 );
 mongoose.connect(DB_URL).then((el) => {
-  console.log("database connected successfully");
+  // console.log("database connected successfully");
 });
 app.enable("trust proxy");
 app.use(cors({ origin: `${process.env.FRONT_END_URL}`, credentials: true }));
@@ -52,7 +52,7 @@ io.on("connection", (socket) => {
       }
     );
     const updateOnlineUsers = [...onlineUsers];
-    console.log("onlineUsers add:", updateOnlineUsers);
+    // console.log("onlineUsers add:", updateOnlineUsers);
   });
   socket.on("send_Message", async (message) => {
     // console.log("message:", message);
@@ -121,16 +121,16 @@ io.on("connection", (socket) => {
         // });
       }
     } catch (err) {
-      console.log("message send failed");
+      // console.log("message send failed");
       // socket.emit("message-sent", { success: false });
     }
   });
 
   socket.on("disconnect", async () => {
     let disconnectUserId = null;
-    console.log("socketId:", socket.id);
+    // console.log("socketId:", socket.id);
     for (const [userId, socketId] of onlineUsers.entries()) {
-      console.log("socketId:", socketId);
+      // console.log("socketId:", socketId);
       if (socketId === socket.id) {
         disconnectUserId = userId;
         break;
@@ -148,17 +148,18 @@ io.on("connection", (socket) => {
       onlineUsers.delete(disconnectUserId);
       const updateOnlineUsers = [...onlineUsers];
 
-      console.log("OnlineUsers_left from 2:", updateOnlineUsers);
+      // console.log("OnlineUsers_left from 2:", updateOnlineUsers);
     }
 
-    console.log(`${socket.id} logout`);
+    // console.log(`${socket.id} logout`);
   });
 });
 
 app.use("/", userRoute);
 app.use("/chat", chatRoute);
+
 app.get("/api/auth", authController.isLoggedIn);
 
 server.listen(port, () => {
-  console.log(`server is running on port ${port}`);
+  // console.log(`server is running on port ${port}`);
 });

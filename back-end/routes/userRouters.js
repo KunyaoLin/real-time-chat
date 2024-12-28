@@ -2,6 +2,8 @@ const express = require("express");
 const userController = require("../controllers/userController");
 const authController = require("../controllers/authController");
 const userRoute = express.Router({ mergeParams: true });
+
+// cosnt;
 userRoute.route("/login").post(authController.login);
 userRoute.route("/signup").post(authController.signup);
 userRoute
@@ -30,6 +32,11 @@ userRoute
 userRoute.route("/friends/request/delete").patch(userController.deleteFriend);
 
 userRoute.route("/getMe").get(authController.protectTo, userController.getMe);
+userRoute.use("/setting", authController.protectTo);
+userRoute
+  .route("/setting/uploadAvatar")
+  .post(userController.uploadAvatar, userController.saveAvatar);
+userRoute.route("/setting/usernameUpdate").patch(userController.updateUsername);
+userRoute.route("/setting/updatePassword").patch(authController.updatePassword);
 userRoute.route("/").post(authController.login);
-// userRoute.use(authController.protectTo);
 module.exports = userRoute;

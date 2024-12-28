@@ -2,7 +2,12 @@ const moongoose = require("mongoose");
 const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const validator = require("validator");
+const fs = require("fs");
 const { default: mongoose } = require("mongoose");
+const path = require("path");
+const defaultImgPath = path.join(__dirname, "../defaultUser.jpg");
+const defaultImg = fs.readFileSync(defaultImgPath);
+const defaultImageType = "image/jpeg";
 //bcrypt => password, crypto=>token
 
 const userSchema = new moongoose.Schema(
@@ -19,10 +24,8 @@ const userSchema = new moongoose.Schema(
       index: true,
     },
     avatar: {
-      type: String,
-      // default: "defaultUser",
-      default:
-        "https://media.istockphoto.com/id/1337144146/vector/default-avatar-profile-icon-vector.jpg?s=612x612&w=0&k=20&c=BIbFwuv7FxTWvh5S3vB6bkT0Qv8Vn8N5Ffseq84ClGI=",
+      data: { type: Buffer, default: defaultImg },
+      contentType: { type: String, default: defaultImageType },
     },
     role: {
       type: String,

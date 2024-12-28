@@ -4,6 +4,10 @@ const FriendReq = require("../models/friendReqModel");
 const Friends = require("../models/friendsModel");
 const User = require("../models/userModel");
 const catchAsync = require("../ults/catchAsync");
+const multer = require("multer");
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 exports.sendFriendreq = catchAsync(async (req, res) => {
   const searchFri = await User.findOne({ email: req.body.receiverEmail });
   //check received Email whether is a friend or not
@@ -37,7 +41,7 @@ exports.sendFriendreq = catchAsync(async (req, res) => {
           message: "send friend request success",
         });
     } catch (err) {
-      console.log(err);
+      // console.log(err);
       res.status(500).json({
         status: "error",
         message: "send friend request fail",
@@ -102,7 +106,7 @@ exports.getAllFriendsReq = catchAsync(async (req, res, next) => {
     receiverEmail: req.user.email,
     status: "pending",
   }).populate("senderId");
-  console.log("allReq:", allReq);
+  // console.log("allReq:", allReq);
 
   if (!allReq || allReq.length === 0)
     return res.status(200).json({
@@ -195,15 +199,14 @@ exports.deleteFriend = catchAsync(async (req, res) => {
   const DeleteAcc = await User.findOne({
     email: req.body.deleteEmail,
   });
-  // console.log("DeleteAcc", DeleteAcc._id);
-  // console.log("user", req.user._id);
+
   if (DeleteAcc) {
     const friDelete = await Friends.findOneAndDelete({
       friends: {
         $all: [req.user._id, DeleteAcc._id],
       },
     });
-    console.log(friDelete);
+    // console.log(friDelete);
     const reqDelete = await FriendReq.findOneAndDelete({
       $or: [
         {
@@ -223,7 +226,13 @@ exports.deleteFriend = catchAsync(async (req, res) => {
     const result = await ChatHistory.findOneAndDelete({
       participants: { $all: [`${req.user._id}`, `${DeleteAcc._id}`] },
     });
-    if (!friDelete || !reqDelete) {
+    const removeBlock = await User.findOneAndUpdate(
+      {
+        email: req.user.email,
+      },
+      { $pull: { blockList: DeleteAcc._id } }
+    );
+    if (!friDelete || !reqDelete || !removeBlock) {
       return res.status(500).json({
         status: "error",
         message: "Delete friend error",
@@ -231,6 +240,7 @@ exports.deleteFriend = catchAsync(async (req, res) => {
           friDelete,
           reqDelete,
           result,
+          removeBlock,
         },
       });
     }
@@ -254,9 +264,10 @@ exports.getAllFriends = catchAsync(async (req, res, next) => {
     return res.status(200).json({
       status: "success",
       message: "No friends on your contact,please add some friends!",
+      data: { FriendsContact: [] },
     });
   } else {
-    console.log("FriendList", FriendList);
+    // console.log("FriendList", FriendList);
     const FriendsContact = FriendList.map((el) => {
       const result = el.friends.filter((el) => el.email !== req.user.email);
 
@@ -267,7 +278,7 @@ exports.getAllFriends = catchAsync(async (req, res, next) => {
       }
       // return { ...el, friends: result };
     });
-    console.log("FriendsContact", FriendsContact);
+    // console.log("FriendsContact", FriendsContact);
     res.status(200).json({
       status: "success",
       message: "All friends load to your contact",
@@ -315,8 +326,18 @@ exports.blockFriend = catchAsync(async (req, res) => {
           blockList: [...req.user.blockList, blockAcc._id],
         }
       );
-      console.log(blockResult);
-      if (!blockResult) throw new Error("Block friend error");
+      const blockChatRec = await ChatHistory.findOneAndUpdate(
+        {
+          participants: {
+            $all: [req.user._id, blockAcc._id],
+          },
+        },
+        {
+          status: "block",
+        }
+      );
+      // console.log(blockResult);
+      if (!blockResult || !blockChatRec) throw new Error("Block friend error");
       res.status(200).json({
         status: "success",
         message: "block friend success",
@@ -361,18 +382,28 @@ exports.unblockFriend = catchAsync(async (req, res) => {
           }),
         }
       );
-      console.log("unblockResult:", unblockResult);
+      const unBlockChatRec = await ChatHistory.findOneAndUpdate(
+        {
+          participants: {
+            $all: [req.user._id, unblockAcc._id],
+          },
+        },
+        {
+          status: "active",
+        }
+      );
+      // console.log("unblockResult:", unblockResult);
       if (unblockResult === null) {
         return res.status(200).json({
           message: "This account is unblock by you",
         });
       }
-      console.log("unblockResult", unblockResult);
+      // console.log("unblockResult", unblockResult);
 
       res.status(200).json({
         status: "success",
         message: "unblock friend success",
-        data: { unblock },
+        data: { unblock, unBlockChatRec },
       });
     }
     if (!unblockAcc) throw new Error("unblock error");
@@ -390,36 +421,13 @@ exports.searchFriend = catchAsync(async (req, res) => {
   const userFound = await User.find({
     username: query,
   }).populate("blockList");
-  console.log("userFound", userFound);
+
   if (userFound.length === 0) {
     return res.status(200).json({
       message: "No User Found",
       data: {},
     });
   }
-  // const relationship = await Friends.find({
-  //   friends: {
-  //     $all: [req.user._id, userFound[0]._id],
-  //   },
-  // });
-  // if (relationship.length !== 0) {
-  //   if (relationship[0].status === "blocked") {
-  //     return res.status(200).json({
-  //       message: "Search error, you are blocked by this account!",
-  //       data: { relationship },
-  //     });
-  //   }
-  //   res.status(200).json({
-  //     message: "He/She is already your friend",
-  //     data: { userFound },
-  //   });
-  // }
-  // if (relationship) {
-  //   return res.status(200).json({
-  //     message: "Search error, you are blocked by this account!",
-  //     data: { relationship },
-  //   });
-  // }
 
   res.status(200).json({
     message: "success",
@@ -439,4 +447,59 @@ exports.getMe = catchAsync(async (req, res) => {
         currentUser,
       },
     });
+});
+exports.uploadAvatar = upload.single("avatar");
+exports.saveAvatar = catchAsync(async (req, res) => {
+  const file = req.file;
+  if (!file)
+    return res.status(404).json({
+      message: "No avatar file found",
+      status: "error",
+    });
+
+  const updateUser = await User.findOneAndUpdate(
+    {
+      email: req.user.email,
+    },
+    {
+      avatar: {
+        data: file.buffer,
+        contentType: file.mimetype,
+      },
+    }
+  );
+  if (!updateUser) {
+    return res.status(500).json({
+      message: "update Avatart error",
+      status: "error",
+    });
+  }
+
+  res.status(200).json({
+    status: "success",
+    data: { updateUser },
+  });
+});
+
+exports.updateUsername = catchAsync(async (req, res) => {
+  const userUpdate = await User.findOneAndUpdate(
+    {
+      email: req.user.email,
+    },
+    {
+      username: req.body.username,
+    }
+  );
+  if (!userUpdate) {
+    return res.status(500).json({
+      status: "error",
+      message: "update username error",
+    });
+  }
+  return res.status(200).json({
+    status: "success",
+    data: {
+      userUpdate,
+    },
+  });
 });

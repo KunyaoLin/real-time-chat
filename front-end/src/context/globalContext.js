@@ -10,6 +10,7 @@ const initialState = {
   currentFriInfo: "",
   allUserRec: [],
   openChat: false,
+  openSetting: false,
   allCurUserMessageRec: [],
 };
 
@@ -23,7 +24,7 @@ function reducer(state, action) {
         numUnreadMegs: state.numUnreadMegs + action.payload,
       };
     case "getAllFriendsInfo":
-      return { ...state, friends: action.payload };
+      return { ...state, friends: [...action.payload] };
     case "getAllFriendsReq":
       return { ...state, allFriendsReq: action.payload };
     case "getAllRec":
@@ -52,6 +53,11 @@ function reducer(state, action) {
         ...state,
         allCurUserMessageRec: action.payload,
       };
+    case "handleSettingChat":
+      return {
+        ...state,
+        openSetting: action.payload,
+      };
     default:
       throw new Error("unknow action");
   }
@@ -68,6 +74,7 @@ const GlobalContextProvider = ({ children }) => {
       allUserRec,
       currentFriInfo,
       openChat,
+      openSetting,
       allCurUserMessageRec,
     },
     dispatch,
@@ -116,7 +123,13 @@ const GlobalContextProvider = ({ children }) => {
       payload: megsArr,
     });
   }
-  async function getFriendReq() {
+  function handleSettingChat(open) {
+    dispatch({
+      type: "handleSettingChat",
+      payload: open,
+    });
+  }
+  async function getAllFriendReq() {
     const result = await axios({
       url: `${URL}/friends/request`,
       method: "GET",
@@ -124,25 +137,28 @@ const GlobalContextProvider = ({ children }) => {
     });
     // console.log("result:", result);
     if (Object.keys(result.data.data).length !== 0) {
+      // console.log("have friends req now");
+
       dispatch({
         type: "getAllFriendsReq",
         payload: result.data.data.allReq,
       });
     } else {
+      // console.log("NO friends req now");
       dispatch({
         type: "getAllFriendsReq",
         payload: [],
       });
     }
   }
-  async function getAllChatRecord(e) {
+  async function getAllChatRecord() {
     try {
       const res = await axios({
         method: "GET",
         url: `${URL}/chat/getChatRecord`,
         withCredentials: true,
       });
-      if (e && res && res.data) {
+      if (res && res.data) {
         dispatch({
           type: "getAllRec",
           payload: res.data.results,
@@ -157,7 +173,7 @@ const GlobalContextProvider = ({ children }) => {
     }
     // if (!isCancel) setTimeout(getAllChatRecord, 3000); //loop data for every 3s
   }
-  async function getAllFriends() {
+  const getAllFriends = async () => {
     try {
       const res = await axios({
         url: `${URL}/friends/getAllFriends`,
@@ -165,63 +181,67 @@ const GlobalContextProvider = ({ children }) => {
         withCredentials: true,
       });
       if (!res) throw new Error("get friends info error");
-      // console.log("ressssss", res.data.data.FriendsContact);
-      const friendsList = res.data.data.FriendsContact.filter((el) => {
-        return el.friends.length !== 0;
-      }).sort((a, b) => {
-        return b.friends[0].onlineStatus === a.friends[0].onlineStatus
-          ? 0
-          : b.friends[0].onlineStatus
-          ? 1
-          : -1;
-      });
-      // console.log("friendsList:", friendsList);
 
-      dispatch({
-        type: "getAllFriendsInfo",
-        payload: friendsList,
-      });
-      return { success: true };
-    } catch (err) {}
-  }
+      if (res.data.data.FriendsContact.length === 0) {
+        dispatch({
+          type: "getAllFriendsInfo",
+          payload: [],
+        });
+      } else {
+        const friendsList = res.data.data.FriendsContact.filter((el) => {
+          return el.friends.length !== 0;
+        }).sort((a, b) => {
+          return b.friends[0].onlineStatus === a.friends[0].onlineStatus
+            ? 0
+            : b.friends[0].onlineStatus
+            ? 1
+            : -1;
+        });
+
+        dispatch({
+          type: "getAllFriendsInfo",
+          payload: friendsList,
+        });
+      }
+
+      // return { friendsList };
+    } catch (err) {
+      // console.error("Error in getAllFriends:", err.message);
+    }
+  };
   async function getAllUnReadMegs() {
     const result = await axios({
       url: `${URL}/chat/getAllUnreadMegsNum`,
       method: "GET",
       withCredentials: true,
     });
+    // console.log("result", result);
     if (result) {
       dispatch({
         type: "getAllUnreadMegs",
         payload: result.data.data.unReadMegs,
       });
-      // console.log("result", result);
-      // console.log("numUnreadMegs", numUnreadMegs);
     }
   }
-  //get all unread megs num
-  useEffect(() => {
-    getAllUnReadMegs();
-  }, []);
-  // get all friends
-  useEffect(() => {
-    getAllFriends();
-  }, []);
-  //get all friReq
-  useEffect(() => {
-    getFriendReq();
-  }, []);
-  //get all chatRec
-  useEffect(() => {
-    let isCreate = true;
 
-    //点击创建聊天后，没有新增对话框左边，另外聊天里面没有创建的对话记录
-    getAllChatRecord(isCreate);
+  //get all friReq/UnReadMegs/AllFriends/AllChatRecord
+  useEffect(() => {
+    getAllFriendReq();
+    getAllUnReadMegs();
+    getAllFriends();
+    getAllChatRecord();
+    const intervalId = setInterval(() => {
+      getAllFriendReq();
+      getAllUnReadMegs();
+      getAllFriends();
+      getAllChatRecord();
+    }, 20000);
 
     return () => {
-      isCreate = false;
+      clearInterval(intervalId);
     };
   }, []);
+
   //get me
   useEffect(() => {
     async function getMe() {
@@ -251,14 +271,16 @@ const GlobalContextProvider = ({ children }) => {
         editAllUserRec,
         editCurrentFriInfo,
         allFriendsReq,
-        getFriendReq,
+        getAllFriendReq,
         getAllChatRecord,
         getAllFriends,
         getAllUnReadMegs,
         currentFriInfo,
         handleChatWindow,
         handleCurUserAllmegs,
+        handleSettingChat,
         Me,
+        openSetting,
         allUserRec,
         openChat,
         allCurUserMessageRec,

@@ -7,12 +7,12 @@ import ChatIcon from "./chatIcon";
 import DialogueInChat from "./dialogueInChat";
 import { ObjectId } from "bson";
 import { useGlobalContext } from "../context/globalContext";
-const URL = process.env.REACT_APP_SERVER_URL;
+import { IoCloseCircleOutline } from "react-icons/io5";
+const serverUrl = process.env.REACT_APP_SERVER_URL;
 
 function Main({ newSocket }) {
   const [inputMessage, setInputMessage] = useState("");
-  // const [allMessageRec, setAllMessageRec] = useState([]);
-  // const [openChat, setOpenChat] = useState(false);
+  const [friendAvatarUrl, setavatarUrl] = useState("");
   const bottomRef = useRef(null);
   const {
     editUnReadMegsNumByClick,
@@ -28,19 +28,30 @@ function Main({ newSocket }) {
     handleCurUserAllmegs,
     handleCurUserAllmegsByClick,
   } = useGlobalContext();
-  console.log("allUserRec", allUserRec);
-
+  // console.log("currentFriInfo", currentFriInfo);
+  // console.log("ME", Me);
+  const MyBinaryData = new Uint8Array(Me.avatar?.data?.data);
+  const Myblob = new Blob([MyBinaryData], {
+    type: Me.avatar?.contentType,
+  });
+  const myavatarUrl = URL.createObjectURL(Myblob);
   const handleChatClick = async (info, allMessages) => {
     let unReadMegs = 0;
 
     if (currentFriInfo && currentFriInfo.email === info.email) {
       return;
     }
-    console.log("info:", info);
+    // console.log("info:", info);
     editCurrentFriInfo(info);
     // console.log("allMessages", allMessages);
     handleCurUserAllmegsByClick(allMessages); //array
 
+    const friendBinaryData = new Uint8Array(info.avatar?.data?.data);
+    const friendblob = new Blob([friendBinaryData], {
+      type: info?.avatar?.contentType,
+    });
+    const friendavatarUrl = URL.createObjectURL(friendblob);
+    setavatarUrl(friendavatarUrl);
     //dismiss unread megs
     allUserRec.forEach((el) => {
       const result = el.participants.filter((i) => {
@@ -54,17 +65,17 @@ function Main({ newSocket }) {
           }
         });
         editUnReadMegsNumByClick(unReadMegs);
-        console.log("unReadMegs:", unReadMegs);
+        // console.log("unReadMegs:", unReadMegs);
       }
     });
 
     handleChatWindow(true);
     try {
       await axios({
-        url: `${URL}/chat/setAllMesgRead`,
+        url: `${serverUrl}/chat/setAllMesgRead`,
         method: "POST",
         data: {
-          FriendInfo: info,
+          FriendInfoId: info._id,
         },
         withCredentials: true,
       });
@@ -142,7 +153,7 @@ function Main({ newSocket }) {
           const result = targetEmailArr.every(
             (value, index) => value === receiverArr[index]
           );
-          console.log("result:", result);
+          // console.log("result:", result);
           if (result) {
             return { ...el, messages: [...el.messages, messageRead] };
           }
@@ -153,14 +164,14 @@ function Main({ newSocket }) {
         handleCurUserAllmegs(messageRead);
         const setAllRead = async () => {
           const setRead = await axios({
-            url: `${URL}/chat/setAllMesgRead`,
+            url: `${serverUrl}/chat/setAllMesgRead`,
             method: "POST",
             data: {
-              FriendInfo: currentFriInfo,
+              FriendInfoId: currentFriInfo._id,
             },
             withCredentials: true,
           });
-          console.log("setRead:", setRead);
+          // console.log("setRead:", setRead);
         };
         setAllRead();
       } else {
@@ -220,7 +231,7 @@ function Main({ newSocket }) {
             className="flex flex-col w-72 overflow-y-scroll "
             style={{
               width: "200px",
-              height: "500px",
+              height: "auto",
               flexShrink: 0,
             }}
           >
@@ -309,15 +320,24 @@ function Main({ newSocket }) {
                 overflow: "hidden",
               }}
             >
-              <span
-                className="flex p-2 w-full font-bold text-3xl"
+              <div
+                className="flex justify-between p-2 w-full font-bold text-3xl"
                 style={{
                   minHeight: "48px",
                   fontFamily: "Roboto",
                 }}
               >
-                {currentFriInfo.username}
-              </span>
+                <span>{currentFriInfo.username}</span>
+                <button
+                  onClick={() => {
+                    editCurrentFriInfo("");
+                    handleCurUserAllmegsByClick("");
+                    handleChatWindow(false);
+                  }}
+                >
+                  <IoCloseCircleOutline />
+                </button>
+              </div>
               <div
                 className="flex flex-col flex-grow"
                 style={{
@@ -329,11 +349,14 @@ function Main({ newSocket }) {
               >
                 {allCurUserMessageRec.map((el) => {
                   const dialogues = el;
+
                   return (
                     <DialogueInChat
                       key={el._id}
                       dialogues={dialogues}
                       currentFriInfo={currentFriInfo}
+                      friendAvatarUrl={friendAvatarUrl}
+                      myavatarUrl={myavatarUrl}
                       Me={Me}
                     />
                   );
@@ -362,6 +385,12 @@ function Main({ newSocket }) {
                     type="submit"
                     value={inputMessage}
                     onChange={handleInput}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSubmitMessage(e);
+                      }
+                    }}
                     minRows={1}
                     maxRows={5}
                     className="max-w-[60vw] w-full"
@@ -369,7 +398,7 @@ function Main({ newSocket }) {
                       maxHeight: "30vh",
                       overflowY: "auto",
                       backgroundColor: "#F1F5F9",
-                      borderRadius: "8px",
+                      borderRadius: "5px",
                       resize: "none",
                       outline: "none",
                       textAlign: "left",

@@ -1,6 +1,5 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import MessageInform from "./MessageInform";
-import { MdAccountBox } from "react-icons/md";
 import { FaRegBell } from "react-icons/fa";
 
 import { useGlobalContext } from "../context/globalContext";
@@ -11,7 +10,7 @@ function NotificationPopUp() {
   const [animateout, setAnimateout] = useState(false);
   const popUpRef = useRef(null);
   const { allFriendsReq } = useGlobalContext();
-  console.log("allFriendsReqallFriendsReq", allFriendsReq);
+  // console.log("allFriendsReqallFriendsReq", allFriendsReq);
   const handleAnimate = () => {
     setAnimateout(true);
     setTimeout(() => {

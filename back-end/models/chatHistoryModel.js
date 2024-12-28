@@ -31,6 +31,12 @@ const ChatHistorySchema = new mongoose.Schema({
       },
     },
   ],
+  status: {
+    type: String,
+    required: [true, "need to set status"],
+    enum: ["active", "block"],
+    default: "active",
+  },
 });
 const ChatHistory = mongoose.model("ChatHistory", ChatHistorySchema);
 module.exports = ChatHistory;

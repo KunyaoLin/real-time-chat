@@ -9,17 +9,19 @@ import { GrUnlock, GrLock } from "react-icons/gr";
 
 const URL = process.env.REACT_APP_SERVER_URL;
 function ContactIcon(props) {
-  console.log("el._doc", props.doc);
   const [deleting, setDeleting] = useState(false);
 
   const [lock, setLock] = useState(props.status === "blocked");
   const [loading, setLoading] = useState(false);
-  // const [unBlocking, setUnblock] = useState(false);
   const [isDeleteClick, setDeleteClick] = useState(false);
   const [isBlockClick, setBlockClick] = useState(false);
   const [isUnblockClick, setUnblockClick] = useState(false);
-  const { getAllChatRecord, getAllFriends, getUnReadMegs, handleChatWindow } =
-    useGlobalContext();
+  const {
+    getAllChatRecord,
+    getAllFriends,
+    getAllUnReadMegs,
+    handleChatWindow,
+  } = useGlobalContext();
 
   const handleDeletClick = () => {
     setDeleteClick(true);
@@ -48,9 +50,12 @@ function ContactIcon(props) {
         });
         if (result.data.status === "success") {
           handleChatWindow(false);
+
           await getAllFriends();
-          await getUnReadMegs();
-          await getAllChatRecord(true);
+
+          await getAllUnReadMegs();
+
+          await getAllChatRecord();
         }
       } catch (err) {
       } finally {
@@ -69,6 +74,15 @@ function ContactIcon(props) {
       }, 100);
     }, 100);
   };
+  const handleUnblockClick = () => {
+    setUnblockClick(true);
+    setTimeout(() => {
+      setUnblockClick(false);
+      setTimeout(() => {
+        handleUnblock();
+      }, 100);
+    }, 100);
+  };
   const handleBlock = async () => {
     const isBlock = window.confirm(
       "Are you sure you want to Block this friend?"
@@ -84,14 +98,12 @@ function ContactIcon(props) {
             blockEmail: props.friendInfo.email,
           },
         });
-        console.log("result", result);
-        console.log("result.data.data.status", result.data.data.status);
         if (result.data.status === "success") {
           setLock(true);
           handleChatWindow(false);
           await getAllFriends();
-          await getUnReadMegs();
-          await getAllChatRecord(true);
+          await getAllUnReadMegs();
+          await getAllChatRecord();
         }
       } catch (err) {
       } finally {
@@ -99,15 +111,7 @@ function ContactIcon(props) {
       }
     }
   };
-  const handleUnblockClick = () => {
-    setUnblockClick(true);
-    setTimeout(() => {
-      setUnblockClick(false);
-      setTimeout(() => {
-        handleUnblock();
-      }, 100);
-    }, 100);
-  };
+
   const handleUnblock = async () => {
     const isRelease = window.confirm(
       "Are you sure you want to release this friend?"
@@ -123,15 +127,13 @@ function ContactIcon(props) {
             unblockEmail: props.friendInfo.email,
           },
         });
-        console.log("result", result);
 
-        // console.log("result.data.data.status", result.data.data.status);
         if (result.data.status === "success") {
           setLock(false);
           handleChatWindow(false);
           await getAllFriends();
-          await getUnReadMegs();
-          await getAllChatRecord(true);
+          await getAllUnReadMegs();
+          await getAllChatRecord();
         }
       } catch (err) {
       } finally {
@@ -142,8 +144,8 @@ function ContactIcon(props) {
   useEffect(() => {
     setLock(props.status === "blocked");
   }, [props.status]);
-  // console.log("lock", lock);
-  console.log("props.status", props.status === "blocked");
+
+  // console.log("blob", blob);
   return (
     <div
       className={`flex bg-slate-100 hover:bg-orange-100 rounded-lg p-1 ${
@@ -152,8 +154,8 @@ function ContactIcon(props) {
     >
       <span>
         <Avatar
-          src={`${props.friendInfo.avatar}`}
-          alt={`${props.friendInfo.avatar}`}
+          src={props.avatarUrl}
+          alt={props.avatarUrl}
           sx={{
             fontSize: 10,
             filter: props.friendInfo.onlineStatus ? "none" : "grayscale(80%)",

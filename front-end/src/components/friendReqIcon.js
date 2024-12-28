@@ -4,19 +4,20 @@ import axios from "axios";
 import { FaRegCircleCheck } from "react-icons/fa6";
 import { FaRegCircleXmark } from "react-icons/fa6";
 import { useGlobalContext } from "../context/globalContext";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
-const URL = process.env.REACT_APP_SERVER_URL;
+const serverUrl = process.env.REACT_APP_SERVER_URL;
 function FriendReqIcon(props) {
-  const [accepting, setAccept] = useState(false);
-  const [rejecting, setReject] = useState(false);
-
-  const { getFriendReq, getAllChatRecord } = useGlobalContext();
-
+  const [loading, setLoading] = useState(false);
+  const { getAllFriendReq, getAllChatRecord } = useGlobalContext();
+  const binaryData = new Uint8Array(props.avatar.data.data);
+  const blob = new Blob([binaryData], {
+    type: props.avatar.contentType,
+  });
+  const avatarUrl = URL.createObjectURL(blob);
   const handleAccept = async () => {
     try {
-      setAccept(true);
+      setLoading(true);
       const result = await axios({
-        url: `${URL}/friends/request/accept`,
+        url: `${serverUrl}/friends/request/accept`,
         method: "PATCH",
         withCredentials: true,
         data: {
@@ -25,40 +26,45 @@ function FriendReqIcon(props) {
           sendName: props.username,
         },
       });
+      // console.log("result", result);
       if (result.data.status === "success") {
-        getFriendReq();
-        getAllChatRecord(true);
+        await getAllFriendReq();
+        await getAllChatRecord();
       }
-      console.log("result", result);
+      // console.log("result", result);
     } catch (err) {
     } finally {
-      setAccept(false);
+      setLoading(false);
     }
   };
   const handleReject = async () => {
     try {
-      setReject(true);
+      setLoading(true);
       const result = await axios({
-        url: `${URL}/friends/request/reject`,
+        url: `${serverUrl}/friends/request/reject`,
         method: "PATCH",
         withCredentials: true,
         data: {
           rejectEmail: props.senderEmail,
         },
       });
-      getFriendReq();
-      console.log("result", result);
+      await getAllFriendReq();
+      // console.log("result", result);
     } catch (err) {
     } finally {
-      setReject(false);
+      setLoading(false);
     }
   };
   return (
-    <div className="flex bg-slate-100  rounded-lg p-1">
+    <div
+      className={`flex bg-slate-100  rounded-lg p-1 ${
+        loading ? "shrinkOut" : ""
+      } `}
+    >
       <span className="flex flex-row items-center">
         <Avatar
-          src={`${props.avatar}`}
-          alt={`${props.avatar}`}
+          src={avatarUrl}
+          alt={avatarUrl}
           sx={{
             fontSize: 10,
             filter: props.onlineStatus ? "none" : "grayscale(80%)",
@@ -74,27 +80,40 @@ function FriendReqIcon(props) {
         </div>
 
         <div className="flex flex-row justify-between items-center px-2 w-16">
-          {accepting ? (
-            <div>
-              <AiOutlineLoading3Quarters className="animate-spin" />
-            </div>
-          ) : (
-            <button onClick={handleAccept}>
-              <FaRegCircleCheck style={{ color: "green", fontSize: "20px" }} />
-            </button>
-          )}
-          {rejecting ? (
-            <div>
-              <AiOutlineLoading3Quarters className="animate-spin" />
-            </div>
-          ) : (
-            <button onClick={handleReject}>
-              <FaRegCircleXmark style={{ color: "grey", fontSize: "20px" }} />
-            </button>
-          )}
+          <button
+            onClick={handleAccept}
+            className="hover:scale-125 transition-transform duration-100 ease-in-out"
+          >
+            <FaRegCircleCheck style={{ color: "green", fontSize: "20px" }} />
+          </button>
+          <button
+            onClick={handleReject}
+            className="hover:scale-125 transition-transform duration-100 ease-in-out"
+          >
+            <FaRegCircleXmark style={{ color: "grey", fontSize: "20px" }} />
+          </button>
         </div>
       </div>
     </div>
   );
 }
 export default FriendReqIcon;
+
+// {accepting ? (
+//   <div>
+//     <AiOutlineLoading3Quarters className="animate-spin" />
+//   </div>
+// ) : (
+//   <button onClick={handleAccept}>
+//     <FaRegCircleCheck style={{ color: "green", fontSize: "20px" }} />
+//   </button>
+// )}
+// {rejecting ? (
+//   <div>
+//     <AiOutlineLoading3Quarters className="animate-spin" />
+//   </div>
+// ) : (
+//   <button onClick={handleReject}>
+//     <FaRegCircleXmark style={{ color: "grey", fontSize: "20px" }} />
+//   </button>
+// )}

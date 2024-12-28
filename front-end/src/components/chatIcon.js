@@ -3,6 +3,11 @@ import Avatar from "@mui/material/Avatar";
 
 function ChatIcon(props) {
   // const [text, setText] = useState("");
+  const binaryData = new Uint8Array(props.friendInfo.avatar.data.data);
+  const blob = new Blob([binaryData], {
+    type: props.friendInfo.avatar.contentType,
+  });
+  const avatarUrl = URL.createObjectURL(blob);
 
   const totolText =
     props.message.length > 19
@@ -23,8 +28,9 @@ function ChatIcon(props) {
         }}
       >
         <Avatar
-          src={`${props.friendInfo.avatar}`}
-          alt={`${props.friendInfo.avatar}`}
+          // src={`${props.friendInfo.avatar}`}
+          src={avatarUrl}
+          alt={avatarUrl}
           sx={{
             fontSize: 10,
             filter: props.friendInfo.onlineStatus ? "none" : "grayscale(80%)",

@@ -8,7 +8,7 @@ import {
 import { BsSendCheck } from "react-icons/bs";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { useGlobalContext } from "../context/globalContext";
-const URL = process.env.REACT_APP_SERVER_URL;
+const serverUrl = process.env.REACT_APP_SERVER_URL;
 
 function AddFriendIcon(props) {
   const [isClick, setClick] = useState(false);
@@ -30,7 +30,7 @@ function AddFriendIcon(props) {
       setLoading(true);
       try {
         const result = await axios({
-          url: `${URL}/friends/request`,
+          url: `${serverUrl}/friends/request`,
           method: "POST",
           data: {
             receiverEmail: email,
@@ -44,9 +44,9 @@ function AddFriendIcon(props) {
           }));
         }
 
-        console.log("result", result);
+        // console.log("result", result);
       } catch (err) {
-        console.log("err", err);
+        // console.log("err", err);
       } finally {
         setSendReq(false);
         setLoading(false);
@@ -59,7 +59,7 @@ function AddFriendIcon(props) {
       setLoading(true);
       try {
         const result = await axios({
-          url: `${URL}/friends/checkReq`,
+          url: `${serverUrl}/friends/checkReq`,
           method: "POST",
           data: {
             me: myEmail,
@@ -67,7 +67,7 @@ function AddFriendIcon(props) {
           },
           withCredentials: true,
         });
-        console.log("result", result);
+        // console.log("result", result);
         setCheckSend(result.data);
       } catch (err) {
       } finally {
@@ -76,14 +76,21 @@ function AddFriendIcon(props) {
     }
     checkReqExist();
   }, [myEmail, email]);
-  // console.log("friReq", friReq);
-  console.log("checkSend", checkSend);
+
+  const binaryData = new Uint8Array(props.avatar.data.data);
+
+  const blob = new Blob([binaryData], {
+    type: props.avatar.contentType,
+  });
+
+  const avatarUrl = URL.createObjectURL(blob);
+  // console.log("avatarUrl", avatarUrl);
   return (
     <div className="flex bg-slate-100  rounded-lg p-1">
       <span>
         <Avatar
-          src={`${props.avatar}`}
-          alt={`${props.avatar}`}
+          src={avatarUrl}
+          alt={avatarUrl}
           sx={{
             fontSize: 10,
           }}

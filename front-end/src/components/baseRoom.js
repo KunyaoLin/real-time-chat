@@ -49,14 +49,14 @@ function BaseRoom() {
             transports: ["websocket"],
           });
           socket.on("connect", () => {
-            console.log("connected to server with ID ", socket.id);
+            // console.log("connected to server with ID ", socket.id);
           });
           socket.on("message", messageListener);
 
-          console.log(response);
+          // console.log(response);
         }
       } catch (err) {
-        console.log("Not authenticated");
+        // console.log("Not authenticated");
         setAuthenticated(false);
         navigate("/login");
       }

@@ -16,7 +16,7 @@ function Logout() {
       if (res.data.status === "logout successfully" && answer)
         navigate("/login");
     } catch (err) {
-      console.log(err);
+      // console.log(err);
     }
   };
   return (
